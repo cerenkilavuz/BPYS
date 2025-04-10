@@ -1,0 +1,28 @@
+<h1 class="text-2xl font-bold mb-4">Gruplarım</h1>
+
+<% @accepted_projects = current_user.projects.includes(:group).where.not(group: nil) %>
+
+<% if @accepted_projects.any? %>
+  <div class="space-y-4">
+    <% @accepted_projects.each do |project| %>
+      <div class="p-4 bg-white rounded-xl shadow">
+        <h2 class="text-xl font-semibold"><%= project.title %></h2>
+        <p class="text-gray-600 mb-2"><%= project.description.truncate(100) %></p>
+
+        <% if project.group %>
+          <p class="font-medium">Grup: <%= project.group.name %></p>
+          
+          <% group_members = GroupMembership.where(group_id: project.group.id).includes(:student) %>
+          <p class="mt-2 font-semibold">Üyeler:</p>
+          <ul class="list-disc list-inside text-gray-700">
+            <% group_members.each do |membership| %>
+              <li><%= User.find(membership.student_id).email %></li>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p>Henüz bir gruba proje ataması yapılmadı.</p>
+<% end %>

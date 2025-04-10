@@ -1,0 +1,23 @@
+<h2>Yayınlanan Projeler</h2>
+
+<% @projects.each do |project| %>
+  <p><strong>Proje Adı:</strong> <%= project.title %></p>
+  <p><strong>Danışman:</strong> <%= project.advisor.email if project.advisor %></p>
+  <p><strong>Kontenjan:</strong> <%= project.quota || "Belirtilmemiş" %></p>
+  <p><strong>Başvuru Sayısı:</strong> <%= project.project_requests.count %></p>
+
+  <% if project.quota.present? && project.project_requests.count >= project.quota %>
+    <p class="text-danger"><i>Bu proje için kontenjan dolmuştur.</i></p>
+  <% elsif ProjectRequest.exists?(group: current_user.group, project: project) %>
+    <p><i>Bu projeye zaten başvurdunuz.</i></p>
+  <% elsif current_user.group&.leader_id == current_user.id %>
+    <%= link_to "Projeye Başvur", new_student_project_project_request_path(project), class: "btn btn-primary" %>
+  <% else %>
+    <p><i>Sadece grup lideri başvuru yapabilir.</i></p>
+  <% end %>
+
+  <hr>
+<% end %>
+
+
+

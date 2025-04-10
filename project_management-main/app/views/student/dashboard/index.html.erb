@@ -1,0 +1,40 @@
+<h1>Öğrenci Paneli</h1>
+<p>Hoş geldiniz, <%= current_user.email %></p>
+
+<%= link_to "Yayınlanan Projeler", student_projects_path, class: "btn btn-primary" %>
+<%= link_to "Gruplarım", student_groups_path, class: "btn btn-primary" %>
+<h1>Grubunuzun Projesi</h1>
+
+<% if current_user.group && current_user.group.project.present? %>
+  <% project = current_user.group.project %>
+  <table>
+    <thead>
+      <tr>
+        <th>Başlık</th>
+        <th>Açıklama</th>
+        <th>Kontenjan</th>
+        <th>Danışman</th>
+        <th>Durum</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><%= project.title %></td>
+        <td><%= project.description %></td>
+        <td><%= project.quota || "Belirtilmemiş" %></td>
+        <td><%= project.advisor&.email || "Danışman yok" %></td>
+        <td>
+          <% if project.published? %>
+            <span style="color: green;">Onaylandı</span>
+          <% else %>
+            <span style="color: red;">Onay Bekliyor</span>
+          <% end %>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+<% else %>
+  <p>Henüz grubunuza ait bir proje bulunmamaktadır.</p>
+<% end %>
+
+<%= link_to "Çıkış Yap", destroy_user_session_path, method: :delete, class: "btn btn-danger", data: { turbo_method: :delete } %>

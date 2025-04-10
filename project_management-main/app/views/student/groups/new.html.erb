@@ -1,0 +1,68 @@
+
+
+<h2>Yeni Grup Oluştur</h2>
+
+<%= form_with model: @group, url: student_groups_path, method: :post, local: true do |f| %>
+  <div class="form-group">
+    <%= f.label :name, "Grup Adı" %>
+    <%= f.text_field :name, class: "form-control", required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :leader_email, "Grup Lideri" %>
+    <%= text_field_tag :leader_email, current_user.email, class: "form-control", disabled: true %>
+  </div>
+
+  <div class="form-group">
+    <%= label_tag "Grup Üyeleri" %>
+    <div id="student-selects">
+      <!-- Dinamik olarak buraya select kutuları eklenecek -->
+    </div>
+    <button type="button" id="add-student" class="btn btn-secondary mt-2">+ Grup Üyesi Ekle</button>
+  </div>
+
+  <%= f.submit "Grubu Oluştur", class: "btn btn-success mt-3" %>
+<% end %>
+<%= javascript_tag do %>
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("JavaScript çalışıyor!");
+
+    const addButton = document.getElementById("add-student");
+    const container = document.getElementById("student-selects");
+
+    if (!addButton || !container) {
+      console.error("Buton veya container bulunamadı.");
+      return;
+    }
+
+    const students = <%= raw(User.where(role: "student").where.not(id: current_user.id).map { |u| [u.id, u.email] }.to_json) %>;
+
+    function createSelect() {
+      const select = document.createElement("select");
+      select.name = "group[student_ids][]";
+      select.className = "form-control mb-2";
+
+      const emptyOption = document.createElement("option");
+      emptyOption.value = "";
+      emptyOption.text = "Bir öğrenci seçin...";
+      select.appendChild(emptyOption);
+
+      students.forEach(function(student) {
+        const option = document.createElement("option");
+        option.value = student[0];
+        option.text = student[1];
+        select.appendChild(option);
+      });
+
+      return select;
+    }
+
+    addButton.addEventListener("click", function() {
+      console.log("Butona tıklandı.");
+      const newSelect = createSelect();
+      container.appendChild(newSelect);
+    });
+  });
+<% end %>
+
+

@@ -1,0 +1,10 @@
+<h2>Projeye Başvur</h2>
+
+<p>Proje: <%= @project.title %></p>
+
+<%= form_with model: @request, url: student_project_project_requests_path(@project), method: :post do |f| %>
+  <p>Başvuruyu onaylamak için butona basınız.</p>
+  <%= f.submit "Başvur", class: "btn btn-success" %>
+<% end %>
+
+<%= link_to "İptal", student_projects_path, class: "btn btn-secondary" %>

@@ -1,0 +1,25 @@
+
+
+<div class="container">
+  <h1 class="mt-4">Hoş Geldiniz, <%= current_user.email %>!</h1>
+  <p class="lead">Bu panelden projeleri ve öğrenci gruplarını yönetebilirsiniz.</p>
+
+  <div class="row mt-5">
+    <div class="col-md-6">
+      <div class="card shadow-lg text-center p-4">
+        <h3>Projeler</h3>
+        <p>Yeni projeler ekleyebilir ve proje tekliflerini inceleyebilirsiniz.</p>
+        <%= link_to "Projeleri Yönet", advisor_projects_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-lg text-center p-4">
+        <h3>Gruplar</h3>
+        <p>Öğrenci gruplarını inceleyebilir ve yönetebilirsiniz.</p>
+        <%= link_to "Grupları Gör", advisor_groups_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+  <%= link_to "Çıkış Yap", destroy_user_session_path, method: :delete, class: "btn btn-danger", data: { turbo_method: :delete } %>
+</div>

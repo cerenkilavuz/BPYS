@@ -1,0 +1,19 @@
+<h1>Proje Düzenle</h1>
+
+<%= form_with(model: @project, url: advisor_project_path(@project), method: :patch) do |f| %>
+  <div>
+    <%= f.label :title, "Proje Başlığı" %>
+    <%= f.text_field :title %>
+  </div>
+
+  <div>
+    <%= f.label :description, "Açıklama" %>
+    <%= f.text_area :description %>
+  </div>
+
+  <div>
+    <%= f.submit "Güncelle" %>
+  </div>
+<% end %>
+
+<%= link_to "İptal", advisor_projects_manage_path %>

@@ -1,0 +1,19 @@
+<div class="container">
+  <h1 class="mt-4">Projeler</h1>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card shadow-lg text-center p-4">
+        <h3>Proje Yönetimi</h3>
+        <p>Yeni proje ekleyebilir veya mevcut projeyi düzenleyebilirsiniz.</p>
+        <%= link_to "Proje Ekle", advisor_projects_manage_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-lg text-center p-4">
+        <h3>Gelen Teklifler</h3>
+        <p>Öğrencilerin projeleriniz için yaptığı başvuruları görüntüleyin.</p>
+        <%= link_to "Teklifleri Gör", requests_advisor_projects_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
