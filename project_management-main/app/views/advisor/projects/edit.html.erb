@@ -1,19 +1,20 @@
-<h1>Proje Düzenle</h1>
-
-<%= form_with(model: @project, url: advisor_project_path(@project), method: :patch) do |f| %>
-  <div>
-    <%= f.label :title, "Proje Başlığı" %>
-    <%= f.text_field :title %>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Proje Düzenle</h1>
+    <%= link_to "İptal", advisor_projects_manage_path, class: "btn btn-outline-secondary" %>
   </div>
 
-  <div>
-    <%= f.label :description, "Açıklama" %>
-    <%= f.text_area :description %>
-  </div>
+  <%= form_with(model: @project, url: advisor_project_path(@project), method: :patch, local: true, class: "card p-4 shadow-sm") do |f| %>
+    <div class="mb-3">
+      <%= f.label :title, "Proje Başlığı", class: "form-label" %>
+      <%= f.text_field :title, class: "form-control", required: true %>
+    </div>
 
-  <div>
-    <%= f.submit "Güncelle" %>
-  </div>
-<% end %>
+    <div class="mb-3">
+      <%= f.label :description, "Açıklama", class: "form-label" %>
+      <%= f.text_area :description, class: "form-control", rows: 5, required: true %>
+    </div>
 
-<%= link_to "İptal", advisor_projects_manage_path %>
+    <%= f.submit "Güncelle", class: "btn btn-primary" %>
+  <% end %>
+</div>

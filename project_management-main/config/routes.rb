@@ -34,17 +34,20 @@ Rails.application.routes.draw do
   end
   
   
-
   namespace :student do
     get "dashboard", to: "dashboard#index"
-
+  
     resources :groups, only: [:index, :new, :create, :show, :destroy] do
-      resources :group_members, only: [:create, :destroy]  # Grup üyeleri ekleme/silme
+      resources :group_members, only: [:create, :destroy]
     end
-
+  
     resources :projects, only: [:index] do
-      resources :project_requests, only: [:new, :create]  # Projeye başvurma
-      
+      resources :project_requests, only: [:new, :create]
+  
+      collection do
+        get "published", to: "projects#published", as: :published
+        get "proposals", to: "projects#proposals", as: :proposals
+      end
     end
   end
-end
+end 

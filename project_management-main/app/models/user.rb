@@ -1,6 +1,8 @@
 class User < ApplicationRecord
 
   enum role: { student: 0, advisor: 1, admin: 2 }  # Roller belirlendi
+  scope :students, -> { where(role: "student") }
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,

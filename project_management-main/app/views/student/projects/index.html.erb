@@ -1,23 +1,23 @@
-<h2>Yayınlanan Projeler</h2>
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Projeler</h2>
 
-<% @projects.each do |project| %>
-  <p><strong>Proje Adı:</strong> <%= project.title %></p>
-  <p><strong>Danışman:</strong> <%= project.advisor.email if project.advisor %></p>
-  <p><strong>Kontenjan:</strong> <%= project.quota || "Belirtilmemiş" %></p>
-  <p><strong>Başvuru Sayısı:</strong> <%= project.project_requests.count %></p>
+  <div class="row justify-content-center">
+    <!-- Yayımlanan Projeler Kartı -->
+    <div class="col-md-5 mb-4">
+      <div class="card text-white bg-dark h-100 shadow-sm" style="cursor: pointer;" onclick="location.href='<%= published_student_projects_path %>'">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+          <h3 class="card-title">📢 Yayımlanan Projeler</h3>
+        </div>
+      </div>
+    </div>
 
-  <% if project.quota.present? && project.project_requests.count >= project.quota %>
-    <p class="text-danger"><i>Bu proje için kontenjan dolmuştur.</i></p>
-  <% elsif ProjectRequest.exists?(group: current_user.group, project: project) %>
-    <p><i>Bu projeye zaten başvurdunuz.</i></p>
-  <% elsif current_user.group&.leader_id == current_user.id %>
-    <%= link_to "Projeye Başvur", new_student_project_project_request_path(project), class: "btn btn-primary" %>
-  <% else %>
-    <p><i>Sadece grup lideri başvuru yapabilir.</i></p>
-  <% end %>
-
-  <hr>
-<% end %>
-
-
-
+    <!-- Proje Teklifleri Kartı -->
+    <div class="col-md-5 mb-4">
+      <div class="card text-white bg-secondary h-100 shadow-sm" style="cursor: pointer;" onclick="location.href='<%= proposals_student_projects_path %>'">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+          <h3 class="card-title">📝 Proje Teklifleri</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

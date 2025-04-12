@@ -1,40 +1,51 @@
-<h1>Öğrenci Paneli</h1>
-<p>Hoş geldiniz, <%= current_user.email %></p>
-
-<%= link_to "Yayınlanan Projeler", student_projects_path, class: "btn btn-primary" %>
-<%= link_to "Gruplarım", student_groups_path, class: "btn btn-primary" %>
-<h1>Grubunuzun Projesi</h1>
+<h2 class="mb-4">Projeniz</h2>
 
 <% if current_user.group && current_user.group.project.present? %>
   <% project = current_user.group.project %>
-  <table>
-    <thead>
-      <tr>
-        <th>Başlık</th>
-        <th>Açıklama</th>
-        <th>Kontenjan</th>
-        <th>Danışman</th>
-        <th>Durum</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><%= project.title %></td>
-        <td><%= project.description %></td>
-        <td><%= project.quota || "Belirtilmemiş" %></td>
-        <td><%= project.advisor&.email || "Danışman yok" %></td>
-        <td>
-          <% if project.published? %>
-            <span style="color: green;">Onaylandı</span>
-          <% else %>
-            <span style="color: red;">Onay Bekliyor</span>
-          <% end %>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-<% else %>
-  <p>Henüz grubunuza ait bir proje bulunmamaktadır.</p>
-<% end %>
+  <% group = current_user.group %>
 
-<%= link_to "Çıkış Yap", destroy_user_session_path, method: :delete, class: "btn btn-danger", data: { turbo_method: :delete } %>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <table class="table table-bordered table-hover">
+        <tbody>
+          <tr>
+            <th scope="row">Proje Başlığı</th>
+            <td><%= project.title %></td>
+          </tr>
+          <tr>
+            <th scope="row">Danışman</th>
+            <td><%=  project.advisor&.email || "Danışman yok" %></td>
+          </tr>
+          <tr>
+            <th scope="row">Grup Adı</th>
+            <td><%= group.name %></td>
+          </tr>
+          <tr>
+            <th scope="row">Grup Üyeleri</th>
+            <td>
+              <ul class="mb-0">
+                <% group.students.each do |user| %>
+                  <li><%= user.email %></li>
+                <% end %>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Proje Durumu</th>
+            <td>
+              <% if project.published? %>
+                <span class="text-success fw-bold">Onaylandı</span>
+              <% else %>
+                <span class="text-warning fw-bold">Onay Bekliyor</span>
+              <% end %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% else %>
+  <div class="alert alert-info">
+    Henüz bir projeye atanmadınız.
+  </div>
+<% end %>

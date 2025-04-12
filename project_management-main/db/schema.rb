@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_10_132522) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_11_200648) do
   create_table "group_memberships", force: :cascade do |t|
     t.integer "group_id"
     t.integer "student_id"
@@ -23,6 +23,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_10_132522) do
     t.integer "leader_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "project_id"
+    t.index ["project_id"], name: "index_groups_on_project_id"
   end
 
   create_table "project_applications", force: :cascade do |t|
@@ -39,10 +41,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_10_132522) do
     t.integer "group_id"
     t.integer "project_id"
     t.text "motivation"
-    t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "advisor_id"
+    t.integer "status", default: 0
   end
 
   create_table "projects", force: :cascade do |t|
@@ -53,9 +55,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_10_132522) do
     t.integer "advisor_id", null: false
     t.boolean "published", default: false
     t.integer "quota", default: 0
-    t.integer "group_id"
     t.index ["advisor_id"], name: "index_projects_on_advisor_id"
-    t.index ["group_id"], name: "index_projects_on_group_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -71,7 +71,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_10_132522) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "groups", "projects"
   add_foreign_key "project_applications", "projects"
   add_foreign_key "project_applications", "users"
-  add_foreign_key "projects", "groups"
 end

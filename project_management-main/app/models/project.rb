@@ -2,7 +2,7 @@
 class Project < ApplicationRecord
   belongs_to :advisor, class_name: 'User', foreign_key: 'advisor_id'
   has_many :project_requests
-  belongs_to :group , optional: true
+  has_many :groups, foreign_key: :project_id, dependent: :nullify
   
   validates :title, presence: true
   validates :description, presence: true

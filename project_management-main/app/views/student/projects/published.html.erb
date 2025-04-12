@@ -1,0 +1,45 @@
+<h2 class="mb-4">Yayımlanan Projeler</h2>
+
+<table class="table table-bordered table-hover">
+  <thead class="thead-dark">
+    <tr>
+      <th>Danışman</th>
+      <th>Proje Adı</th>
+      <th>Konu</th>
+      <th>Başvuru Sayısı / Kontenjan</th>
+      <th>Başvuru</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @projects.group_by(&:advisor).each do |advisor, projects| %>
+      <% advisor_email = advisor&.email || "Bilinmiyor" %>
+      <% projects.each_with_index do |project, index| %>
+        <% active_request_count = project.project_requests.where(status: [:pending, :accepted]).count %>
+        <tr>
+          <!-- Danışman adı sadece ilk satırda rowspan ile -->
+          <% if index == 0 %>
+            <td rowspan="<%= projects.size %>" class="align-middle"><%= advisor_email %></td>
+          <% end %>
+          <td><%= project.title %></td>
+          <td><%= project.description.truncate(80) %></td>
+          <td><%= "#{active_request_count} / #{project.quota || '∞'}" %></td>
+          <td>
+            <% if project.quota.present? && active_request_count >= project.quota %>
+              <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Bu proje için kontenjan doldu" %>
+            <% elsif ProjectRequest.exists?(group: current_user.group, project: project) %>
+              <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Bu projeye zaten başvurdunuz" %>
+            <% elsif current_user.group&.leader_id != current_user.id %>
+              <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Sadece grup lideri başvurabilir" %>
+            <% else %>
+              <%= link_to "Başvur", new_student_project_project_request_path(project), class: "btn btn-sm btn-primary" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="container position-relative">
+  <%= link_to "Geri", student_projects_path, class: "btn btn-sm btn-outline-secondary position-absolute", style: "top: 1rem; right: 1rem; z-index: 10;" %>
+</div>

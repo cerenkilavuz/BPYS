@@ -1,5 +1,6 @@
 module Advisor
   class ProjectsController < ApplicationController
+    layout "advisor"
     before_action :authenticate_user!  # Kullanıcı giriş yapmalı
     before_action :only_advisors       # Sadece "advisor" erişebilir
     before_action :set_project, only: [:edit, :update, :destroy]
@@ -11,7 +12,8 @@ module Advisor
     # 2️⃣ "Öğrenci Teklifleri" sayfası
 
     def requests
-      @requests = ProjectRequest.includes(:group, :project).where(project: current_user.owned_projects)
+      @requests = ProjectRequest.joins(:project).where(status: 'pending', projects: { advisor_id: current_user.id })
+
     end
     
     

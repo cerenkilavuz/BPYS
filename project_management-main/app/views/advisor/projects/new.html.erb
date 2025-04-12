@@ -1,27 +1,30 @@
-<h1>Yeni Proje Ekle</h1>
-
-<%= form_with model: @project, url: advisor_projects_path, local: true do |f| %>
-  <div>
-    <%= f.label :title, "Proje Başlığı" %><br>
-    <%= f.text_field :title %>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Yeni Proje Ekle</h1>
+    <%= link_to "Geri", advisor_projects_path, class: "btn btn-outline-secondary" %>
   </div>
 
-  <div>
-    <%= f.label :description, "Proje Açıklaması" %><br>
-    <%= f.text_area :description %>
-  </div>
+  <%= form_with model: @project, url: advisor_projects_path, local: true, class: "card p-4 shadow-sm" do |f| %>
+    <div class="mb-3">
+      <%= f.label :title, "Proje Başlığı", class: "form-label" %>
+      <%= f.text_field :title, class: "form-control", required: true %>
+    </div>
 
-  <div>
-    <%= f.label :quota, "Kontenjan (Kaç grup başvurabilir?)" %><br>
-    <%= f.number_field :quota, min: 1 %>
-  </div>
+    <div class="mb-3">
+      <%= f.label :description, "Proje Açıklaması", class: "form-label" %>
+      <%= f.text_area :description, class: "form-control", rows: 5, required: true %>
+    </div>
 
-  <div>
-    <%= f.label :published, "Yayınla" %>
-    <%= f.check_box :published %>
-  </div>
+    <div class="mb-3">
+      <%= f.label :quota, "Kontenjan", class: "form-label" %>
+      <%= f.number_field :quota, min: 1, class: "form-control", required: true %>
+    </div>
 
-  <div>
-    <%= f.submit "Projeyi Ekle" %>
-  </div>
-<% end %>
+    <div class="form-check mb-3">
+      <%= f.check_box :published, class: "form-check-input", id: "project_published" %>
+      <%= f.label :published, "Yayınla", class: "form-check-label", for: "project_published" %>
+    </div>
+
+    <%= f.submit "Projeyi Ekle", class: "btn btn-success" %>
+  <% end %>
+</div>

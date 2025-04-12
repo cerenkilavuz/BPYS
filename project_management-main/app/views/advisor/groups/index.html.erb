@@ -1,28 +1,39 @@
-<h1 class="text-2xl font-bold mb-4">Gruplarım</h1>
+<h2 class="mb-4">Projeye Atanmış Gruplar</h2>
 
-<% @accepted_projects = current_user.projects.includes(:group).where.not(group: nil) %>
+<% projects_with_groups = current_user.projects.includes(groups: :students) %>
 
-<% if @accepted_projects.any? %>
-  <div class="space-y-4">
-    <% @accepted_projects.each do |project| %>
-      <div class="p-4 bg-white rounded-xl shadow">
-        <h2 class="text-xl font-semibold"><%= project.title %></h2>
-        <p class="text-gray-600 mb-2"><%= project.description.truncate(100) %></p>
-
-        <% if project.group %>
-          <p class="font-medium">Grup: <%= project.group.name %></p>
-          
-          <% group_members = GroupMembership.where(group_id: project.group.id).includes(:student) %>
-          <p class="mt-2 font-semibold">Üyeler:</p>
-          <ul class="list-disc list-inside text-gray-700">
-            <% group_members.each do |membership| %>
-              <li><%= User.find(membership.student_id).email %></li>
+<% if projects_with_groups.any? %>
+  <table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th>Proje Adı</th>
+        <th>Grup Adı</th>
+        <th>Grup Üyeleri</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% projects_with_groups.each do |project| %>
+        <% next if project.groups.empty? %>
+        <% project.groups.each_with_index do |group, index| %>
+          <tr>
+            <% if index == 0 %>
+              <td rowspan="<%= project.groups.size %>" class="align-middle"><%= project.title %></td>
             <% end %>
-          </ul>
+            <td><%= group.name %></td>
+            <td>
+              <% group.students.each do |student| %>
+                <div><%= student.email %></div>
+              <% end %>
+            </td>
+          </tr>
         <% end %>
-      </div>
-    <% end %>
-  </div>
+      <% end %>
+    </tbody>
+  </table>
 <% else %>
-  <p>Henüz bir gruba proje ataması yapılmadı.</p>
+  <div class="alert alert-info">Henüz projelerinize atanmış bir grup bulunmamaktadır.</div>
 <% end %>
+
+<div class="container position-relative">
+  <%= link_to "Geri", advisor_dashboard_path, class: "btn btn-sm btn-outline-secondary position-absolute", style: "top: 1rem; right: 1rem; z-index: 10;" %>
+</div>

@@ -1,20 +1,31 @@
 <h2>Grup Yönetimi</h2>
 
 <% if @group.present? %>
-  <p>Grubunuz: <strong><%= @group.name %></strong></p>
-  <p>Grup Lideri: <%= @group.leader.email %></p>
-  <h3>Üyeler:</h3>
-  <ul>
-    <% @group.students.each do |student| %>
-      <li><%= student.email %></li>
-    <% end %>
-  </ul>
-   <%= button_to "Grubu Sil", student_group_path(@group), method: :delete, class: "btn btn-danger mt-2", data: { turbo_method: :delete } %>
+  <div class="mb-4">
+    <p><strong>Grup Adı:</strong> <%= @group.name %></p>
+  </div>
 
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>Üye E-posta</th>
+        <th>Rol</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @group.students.each do |student| %>
+        <tr>
+          <td><%= student.email %></td>
+          <td>
+            <%= student == @group.leader ? "Lider" : "Üye" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <%= button_to "Grubu Sil", student_group_path(@group), method: :delete, class: "btn btn-danger mt-3", data: { turbo_method: :delete } %>
 <% else %>
   <p>Henüz bir grubunuz yok.</p>
   <%= link_to "Yeni Grup Oluştur", new_student_group_path, class: "btn btn-success" %>
 <% end %>
-
-
-

@@ -1,5 +1,7 @@
 class Student::GroupsController < ApplicationController
+  layout "student"
   before_action :authenticate_user!
+ 
 
   def index
     @group = current_user.group
