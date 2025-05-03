@@ -1,0 +1,24 @@
+<h2>Öğrencilerden Gelen Proje Teklifleri</h2>
+
+<% if @project_proposals.where(status: 'pending').any? %>
+  <% @project_proposals.where(status: 'pending').each do |proposal| %>
+    <div class="project-proposal mb-4 p-3 border rounded shadow-sm">
+      <p><strong>Başlık:</strong> <%= proposal.title %></p>
+      <p><strong>Öğrenci:</strong> <%= proposal.group.name %></p>
+      <p><strong>Açıklama:</strong> <%= proposal.description %></p>
+
+      <div class="actions mt-2">
+        <%= button_to 'Kabul Et', accept_advisor_project_proposal_path(proposal), method: :patch, class: "btn btn-sm btn-success me-2", data: { turbo: false } %>
+        <%= button_to 'Reddet', reject_advisor_project_proposal_path(proposal), method: :patch, class: "btn btn-sm btn-danger", data: { turbo: false } %>
+      </div>
+
+      <hr>
+    </div>
+  <% end %>
+<% else %>
+  <div class="alert alert-info">Şu anda herhangi bir proje isteği bulunmamaktadır.</div>
+<% end %>
+
+<div class="container position-relative">
+  <%= link_to "Geri", advisor_projects_path, class: "btn btn-sm btn-outline-secondary position-absolute", style: "top: 1rem; right: 1rem; z-index: 10;" %>
+</div>

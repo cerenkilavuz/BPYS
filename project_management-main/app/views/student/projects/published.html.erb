@@ -13,10 +13,24 @@
   <tbody>
     <% @projects.group_by(&:advisor).each do |advisor, projects| %>
       <% advisor_email = advisor&.email || "Bilinmiyor" %>
+
+      <% group = current_user.group %>
+
+      <%# Grup varsa başvuru durumu kontrol edilir %>
+      <% if group.present? %>
+        <% leader_request = ProjectRequest.find_by(group_id: group.id, status: [:pending, :accepted]) %>
+        <% proposal_exists = group.project_proposals.where(status: [:pending, :accepted]).exists? %>
+        <% disable_buttons = leader_request.present? || proposal_exists %>
+        <% is_leader = group.leader_id == current_user.id %>
+      <% else %>
+        <% disable_buttons = true %>
+        <% is_leader = false %>
+      <% end %>
+
       <% projects.each_with_index do |project, index| %>
         <% active_request_count = project.project_requests.where(status: [:pending, :accepted]).count %>
+
         <tr>
-          <!-- Danışman adı sadece ilk satırda rowspan ile -->
           <% if index == 0 %>
             <td rowspan="<%= projects.size %>" class="align-middle"><%= advisor_email %></td>
           <% end %>
@@ -24,11 +38,13 @@
           <td><%= project.description.truncate(80) %></td>
           <td><%= "#{active_request_count} / #{project.quota || '∞'}" %></td>
           <td>
-            <% if project.quota.present? && active_request_count >= project.quota %>
+            <% if group.nil? %>
+              <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Başvuru yapabilmek için önce bir grup oluşturmalısınız" %>
+            <% elsif project.quota.present? && active_request_count >= project.quota %>
               <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Bu proje için kontenjan doldu" %>
-            <% elsif ProjectRequest.exists?(group: current_user.group, project: project) %>
-              <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Bu projeye zaten başvurdunuz" %>
-            <% elsif current_user.group&.leader_id != current_user.id %>
+            <% elsif disable_buttons %>
+              <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Grubunuz zaten bir başvuru yaptı veya teklif gönderdi" %>
+            <% elsif !is_leader %>
               <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Sadece grup lideri başvurabilir" %>
             <% else %>
               <%= link_to "Başvur", new_student_project_project_request_path(project), class: "btn btn-sm btn-primary" %>

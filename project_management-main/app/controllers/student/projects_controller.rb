@@ -4,6 +4,7 @@ module Student
     layout "student"
 
     def index
+      @group = current_user.group
     end
 
     def published
@@ -11,7 +12,9 @@ module Student
     end
 
     def proposals
-      # proje teklifleri burada olacak
+      @project_proposals = ProjectProposal.where(group_id: current_user.group.id)
     end
+    
+    
   end
 end

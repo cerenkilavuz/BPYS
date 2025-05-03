@@ -1,8 +1,19 @@
 <h2 class="mb-4">Projeniz</h2>
 
-<% if current_user.group && current_user.group.project.present? %>
-  <% project = current_user.group.project %>
-  <% group = current_user.group %>
+<% group = current_user.group %>
+<% project = group&.project %>
+<% project_proposal = group&.project_proposals&.find_by(status: "accepted") %>
+
+<% if project.present? || project_proposal.present? %>
+  <% display_data = {
+    title: project&.title || project_proposal&.title,
+    advisor: project&.advisor&.email || project_proposal&.advisor&.email || "Danışman atanmamış",
+    group_name: group.name,
+    students: group.students,
+    description: project&.description || project_proposal&.description,
+    status: project.present? ? (project.published? ? "Onaylandı" : "Onay Bekliyor") : "Kabul Edildi",
+    status_class: project.present? ? (project.published? ? "text-success" : "text-warning") : "text-success"
+  } %>
 
   <div class="card shadow-sm">
     <div class="card-body">
@@ -10,35 +21,29 @@
         <tbody>
           <tr>
             <th scope="row">Proje Başlığı</th>
-            <td><%= project.title %></td>
+            <td><%= display_data[:title] %></td>
           </tr>
           <tr>
             <th scope="row">Danışman</th>
-            <td><%=  project.advisor&.email || "Danışman yok" %></td>
+            <td><%= display_data[:advisor] %></td>
           </tr>
           <tr>
             <th scope="row">Grup Adı</th>
-            <td><%= group.name %></td>
+            <td><%= display_data[:group_name] %></td>
           </tr>
           <tr>
             <th scope="row">Grup Üyeleri</th>
             <td>
               <ul class="mb-0">
-                <% group.students.each do |user| %>
+                <% display_data[:students].each do |user| %>
                   <li><%= user.email %></li>
                 <% end %>
               </ul>
             </td>
           </tr>
           <tr>
-            <th scope="row">Proje Durumu</th>
-            <td>
-              <% if project.published? %>
-                <span class="text-success fw-bold">Onaylandı</span>
-              <% else %>
-                <span class="text-warning fw-bold">Onay Bekliyor</span>
-              <% end %>
-            </td>
+            <th scope="row">Durum</th>
+            <td><span class="<%= display_data[:status_class] %> fw-bold"><%= display_data[:status] %></span></td>
           </tr>
         </tbody>
       </table>
@@ -46,6 +51,6 @@
   </div>
 <% else %>
   <div class="alert alert-info">
-    Henüz bir projeye atanmadınız.
+    Henüz bir projeye atanmadınız veya proje teklifiniz onaylanmadı.
   </div>
 <% end %>

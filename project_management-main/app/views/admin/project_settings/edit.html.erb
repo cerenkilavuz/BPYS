@@ -1,0 +1,64 @@
+<h2>Proje Seçim Ayarları</h2>
+
+<%= form_with model: @deadline, url: admin_project_setting_path, method: :patch, local: true do |form| %>
+  <div class="form-group">
+    <%= form.label :value, "Son Proje Seçim Tarihi" %>
+    <%= form.date_field :value, value: @deadline.value, class: "form-control" %>
+  </div>
+  <%= form.submit "Güncelle", class: "btn btn-success mt-2" %>
+<% end %>
+
+<% if @groups_with_projects.any? %>
+<h3>Proje Seçimi Yapmış Gruplar</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Grup Adı</th>
+      <th>Proje Başlığı</th>
+      <th>Oluşturulma Tarihi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @groups_with_projects.each do |group| %>
+      <% accepted_proposal = group.project_proposals.find { |p| p.status == 'accepted' } %>
+      <tr>
+        <td><%= group.name %></td>
+        <td>
+          <% if accepted_proposal.present? %>
+            <%= accepted_proposal.title %>
+          <% else %>
+            <%= group.project.title %>
+          <% end %>
+        </td>
+        <td><%= group.created_at.strftime("%d.%m.%Y") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<% else %>
+  <p>Proje seçimi yapmış grup bulunmamaktadır.</p>
+<% end %>
+
+<% if @groups_without_project.any? %>
+  <h3>Proje Seçimi Yapmamış Gruplar</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Grup Adı</th>
+        <th>Oluşturulma Tarihi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @groups_without_project.each do |group| %>
+        <tr>
+          <td><%= group.name %></td>
+          <td><%= group.created_at.strftime("%d.%m.%Y") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= button_to 'Rastgele Proje Ata', assign_random_projects_admin_project_setting_path, method: :post, class: 'btn btn-success' %>
+<% else %>
+  <p>Proje seçimi yapmamış grup bulunmamaktadır.</p>
+<% end %>

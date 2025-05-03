@@ -1,6 +1,9 @@
-<div class="container mt-5">
-  <h2 class="mb-4 text-center">Projeler</h2>
+<% deadline = SystemSetting.find_by(key: 'project_selection_deadline')&.value_as_date %>
+<% if deadline.present? %>
+  <p><strong>Son proje seçim tarihi:</strong> <%= deadline.strftime("%d.%m.%Y") %></p>
+<% end %>
 
+<div class="container mt-5">
   <div class="row justify-content-center">
     <!-- Yayımlanan Projeler Kartı -->
     <div class="col-md-5 mb-4">
@@ -13,11 +16,11 @@
 
     <!-- Proje Teklifleri Kartı -->
     <div class="col-md-5 mb-4">
-      <div class="card text-white bg-secondary h-100 shadow-sm" style="cursor: pointer;" onclick="location.href='<%= proposals_student_projects_path %>'">
-        <div class="card-body d-flex flex-column justify-content-center align-items-center">
-          <h3 class="card-title">📝 Proje Teklifleri</h3>
-        </div>
+    <div class="card text-white bg-dark h-100 shadow-sm" style="cursor: pointer;" onclick="location.href='<%= proposals_student_projects_path %>'">
+      <div class="card-body d-flex flex-column justify-content-center align-items-center">
+        <h3 class="card-title">📢 Projele Teklifi</h3>
       </div>
     </div>
+  </div>
   </div>
 </div>

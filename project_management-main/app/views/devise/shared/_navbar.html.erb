@@ -15,20 +15,6 @@
             <%= link_to "Bildirimler", "#" , class: "nav-link" %>
           </li>
 
-          <% if current_user.admin? %>
-            <li class="nav-item">
-              <%= link_to "Admin Paneli", admin_dashboard_path, class: "nav-link" %>
-            </li>
-          <% elsif current_user.advisor? %>
-            <li class="nav-item">
-              <%= link_to "Danışman Paneli", advisor_dashboard_path, class: "nav-link" %>
-            </li>
-          <% elsif current_user.student? %>
-            <li class="nav-item">
-              <%= link_to "Öğrenci Paneli", student_dashboard_path, class: "nav-link" %>
-            </li>
-          <% end %>
-
           <li class="nav-item">
             <%= link_to "Çıkış Yap", destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "nav-link text-danger" %>
           </li>

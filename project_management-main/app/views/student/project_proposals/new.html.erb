@@ -1,0 +1,22 @@
+<h2>Yeni Proje Teklifi Gönder</h2>
+
+<%= form_with model: @project_proposal, url: student_project_proposals_path, local: true do |form| %>
+  <div class="field">
+    <%= form.label :advisor_id, "Danışman" %>
+    <%= form.collection_select :advisor_id, @advisors, :id, :email, prompt: "Danışman Seç" %>
+  </div>
+
+  <div class="field">
+    <%= form.label :title, "Proje Başlığı" %>
+    <%= form.text_field :title %>
+  </div>
+
+  <div class="field">
+    <%= form.label :description, "Proje Açıklaması" %>
+    <%= form.text_area :description %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "Teklifi Gönder" %>
+  </div>
+<% end %>

@@ -1,0 +1,69 @@
+<h1>Grup Oluşturma Son Tarihi Ayarı</h1>
+
+  
+  <%= form_with url: admin_setting_path, method: :patch, scope: :system_setting, local: true do |form| %>
+    <%= form.label :value, "Grup Oluşturma Son Tarihi" %>
+    <%= form.date_field :value, value: @deadline.value %>
+
+    <%= form.submit "Güncelle", class: "btn btn-primary" %>
+<% end %>
+
+
+<h2 class="mt-5">Grup Oluşturmamış Öğrenciler</h2>
+
+<% if @deadline.present? %>
+  <p><strong>Son tarih:</strong> <%= @deadline.value.to_date.strftime("%d.%m.%Y") %></p>
+
+  <% if @students_without_group.any? %>
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Kayıt Tarihi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @students_without_group.each do |student| %>
+          <tr>
+            <td><%= student.email %></td>
+            <td><%= student.created_at.strftime("%d.%m.%Y") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div class="alert alert-success">Tüm öğrenciler gruba katılmış görünüyor ✅</div>
+  <% end %>
+<% else %>
+  <div class="alert alert-warning">Henüz bir son tarih belirlenmemiş. Listeleme için lütfen bir tarih girin.</div>
+<% end %>
+
+<%= link_to "📄 CSV Dışa Aktar", export_unassigned_students_admin_setting_path(format: :csv), class: "btn btn-outline-primary mb-3" %>
+
+<%= button_to "📧 E-Posta Gönder", email_unassigned_students_admin_setting_path, method: :post, class: "btn btn-outline-danger mb-3", data: { confirm: "Tüm öğrencilere e-posta gönderilecek. Emin misiniz?" } %>
+
+<h2 class="mt-4">Mevcut Gruplar</h2>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Grup Adı</th>
+      <th>Öğrenciler</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @groups.each do |group| %>
+      <tr>
+        <td><%= group.name %></td>
+        <td>
+          <% group.students.each do |student| %>
+            <%= student.email %><br>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+
+<%= button_to "👥 Rastgele Grup Oluştur", random_group_students_admin_setting_path, method: :post, class: "btn btn-success mb-3", data: { confirm: "Tüm grup oluşturmamış öğrenciler rastgele gruplandırılacak. Devam edilsin mi?" } %>

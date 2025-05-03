@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  students_can_login: false
+  students_can_register: false
+  group_creation_deadline: 2025-05-02 17:04:34
+  project_submission_deadline: 2025-05-02 17:04:34
+
+two:
+  students_can_login: false
+  students_can_register: false
+  group_creation_deadline: 2025-05-02 17:04:34
+  project_submission_deadline: 2025-05-02 17:04:34

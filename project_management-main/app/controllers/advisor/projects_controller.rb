@@ -1,31 +1,24 @@
 module Advisor
   class ProjectsController < ApplicationController
     layout "advisor"
-    before_action :authenticate_user!  # Kullanıcı giriş yapmalı
-    before_action :only_advisors       # Sadece "advisor" erişebilir
+    before_action :authenticate_user!  
+    before_action :only_advisors       
     before_action :set_project, only: [:edit, :update, :destroy]
 
-    # 1️⃣ "Projeler" ana ekranı
     def dashboard
     end
-
-    # 2️⃣ "Öğrenci Teklifleri" sayfası
 
     def requests
       @requests = ProjectRequest.joins(:project).where(status: 'pending', projects: { advisor_id: current_user.id })
 
     end
     
-    
-    
-
-    # 3️⃣ Proje yönetim sayfası
+  
     def manage
-      @projects = Project.where(advisor_id: current_user.id)  # Sadece giriş yapan danışmanın projelerini getir
+      @projects = Project.where(advisor_id: current_user.id)  
     end
     
 
-    # 4️⃣ Yeni proje ekleme
     def new
       @project = Project.new
     end
@@ -33,8 +26,8 @@ module Advisor
     
     def create
       @project = Project.new(project_params)
-      @project.advisor_id = current_user.id  # Sadece danışman ekleyebilir
-      @project.published = true  # Yeni eklenen projeyi otomatik yayınla
+      @project.advisor_id = current_user.id  
+      @project.published = true 
       if @project.save
         redirect_to advisor_projects_path, notice: "Proje başarıyla eklendi."
       else
@@ -43,8 +36,6 @@ module Advisor
     end
     
   
-
-    # 5️⃣ Proje güncelleme
     def edit
     end
 
@@ -55,8 +46,7 @@ module Advisor
         render :edit, status: :unprocessable_entity
       end
     end
-
-    # 6️⃣ Proje silme
+    
     def destroy
       @project.destroy
       redirect_to advisor_projects_manage_path, notice: "Proje başarıyla silindi!"

@@ -1,4 +1,9 @@
 <h2>Grup Yönetimi</h2>
+<% deadline = SystemSetting.find_by(key: 'group_creation_deadline')&.value_as_date %>
+<% if deadline.present? %>
+  <p><strong>Son grup oluşturma tarihi:</strong> <%= deadline.strftime("%d.%m.%Y") %></p>
+<% end %>
+
 
 <% if @group.present? %>
   <div class="mb-4">
@@ -24,7 +29,12 @@
     </tbody>
   </table>
 
-  <%= button_to "Grubu Sil", student_group_path(@group), method: :delete, class: "btn btn-danger mt-3", data: { turbo_method: :delete } %>
+  <% if current_user.id == @group.leader_id %>
+    <%= button_to "Grubu Sil", student_group_path(@group), method: :delete, class: "btn btn-danger mt-3", data: { turbo_method: :delete } %>
+  <% else %>
+    <%= button_tag "Grubu Sil", class: "btn btn-danger mt-3", disabled: true, title: "Sadece grup lideri grubu silebilir" %>
+  <% end %>
+
 <% else %>
   <p>Henüz bir grubunuz yok.</p>
   <%= link_to "Yeni Grup Oluştur", new_student_group_path, class: "btn btn-success" %>

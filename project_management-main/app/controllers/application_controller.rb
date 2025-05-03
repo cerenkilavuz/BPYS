@@ -1,6 +1,7 @@
 
 class ApplicationController < ActionController::Base
-    before_action :authenticate_user! # Kullanıcı giriş yapmadan hiçbir sayfaya erişemez
+    before_action :authenticate_user! 
+    before_action :check_student_login
     
       def after_sign_in_path_for(resource)
         case resource.role
@@ -15,6 +16,14 @@ class ApplicationController < ActionController::Base
         end
       end
     
+      def check_student_login
+        return unless current_user&.student?
+      
+        if !SystemSetting.instance.students_can_login
+          sign_out current_user
+          redirect_to root_path, alert: "Sistem şu anda öğrenci girişine kapalıdır."
+        end
+      end
     
   
     private

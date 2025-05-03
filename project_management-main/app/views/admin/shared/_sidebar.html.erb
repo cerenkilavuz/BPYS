@@ -1,0 +1,22 @@
+<div class="bg-light border-end vh-100 p-3" style="width: 220px;">
+    <h5 class="text-center">
+    Hoş geldiniz, <%= current_user.email %>
+    </h5>
+  <ul class="nav flex-column mt-4">
+    <li class="nav-item">
+      <%= link_to "Anasayfa", admin_dashboard_path, class: "nav-link" %>
+    </li>
+   <li class="nav-item">
+      <%= link_to "Projeleri Yönet", edit_admin_project_setting_path, class: "nav-link text-dark" %>
+    </li>
+    <li class="nav-item">
+      <%= link_to "Grupları Yönet", edit_admin_setting_path, class: "nav-link text-dark" %>
+    </li>
+    <li class="nav-item">
+      <%= link_to "Danışman Ekle", new_admin_advisor_path, class: "nav-link text-dark" %>
+    </li>  
+    <li class="nav-item">
+        <%= link_to "Sistem Ayarları", edit_admin_system_setting_path, class: "nav-link" %>
+    </li>
+  </ul>
+</div>

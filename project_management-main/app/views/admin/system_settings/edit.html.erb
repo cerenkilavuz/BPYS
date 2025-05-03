@@ -1,0 +1,25 @@
+<h2>Sistem Ayarları</h2>
+
+<%= form_with model: @system_setting, url: admin_system_setting_path, method: :put, local: true do |f| %>
+  <div class="form-check form-switch mb-3">
+    <%= f.check_box :students_can_login, class: "form-check-input" %>
+    <%= f.label :students_can_login, "Öğrenci Girişi", class: "form-check-label" %>
+  </div>
+
+  <div class="form-check form-switch mb-3">
+    <%= f.check_box :students_can_register, class: "form-check-input" %>
+    <%= f.label :students_can_register, "Öğrenci Kaydı", class: "form-check-label" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :group_creation_deadline, "Grup Oluşturma Son Tarihi" %>
+    <%= f.datetime_select :group_creation_deadline, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :project_submission_deadline, "Proje Oluşturma/Başvuru Son Tarihi" %>
+    <%= f.datetime_select :project_submission_deadline, class: "form-control" %>
+  </div>
+
+  <%= f.submit "Kaydet", class: "btn btn-primary" %>
+<% end %>

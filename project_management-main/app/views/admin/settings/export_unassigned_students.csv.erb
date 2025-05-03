@@ -1,0 +1,4 @@
+Email,Kayıt Tarihi
+<% @students_without_group.each do |student| %>
+<%= student.email %>,<%= student.created_at.strftime("%d.%m.%Y") %>
+<% end %>

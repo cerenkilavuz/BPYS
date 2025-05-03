@@ -1,19 +1,24 @@
-<h2 class="mb-4">Projeye Atanmış Gruplar</h2>
+<h2 class="mb-4">Onayladığınız Projeler ve Proje Teklifleri</h2>
 
-<% projects_with_groups = current_user.projects.includes(groups: :students) %>
+<% # Danışmanın onayladığı projeler %>
+<% projects = current_user.projects.includes(groups: [students: []]) %>
 
-<% if projects_with_groups.any? %>
+<% # Danışmanın onayladığı proje teklifleri %>
+<% accepted_proposals = ProjectProposal.where(advisor_id: current_user.id, status: "accepted").includes(group: :students) %>
+
+<% if projects.any? || accepted_proposals.any? %>
   <table class="table table-bordered table-hover">
     <thead class="thead-dark">
       <tr>
-        <th>Proje Adı</th>
+        <th>Proje Başlığı</th>
         <th>Grup Adı</th>
         <th>Grup Üyeleri</th>
+        <th>Açıklama</th>
       </tr>
     </thead>
     <tbody>
-      <% projects_with_groups.each do |project| %>
-        <% next if project.groups.empty? %>
+      <% # Projects tablosundaki projeler %>
+      <% projects.each do |project| %>
         <% project.groups.each_with_index do |group, index| %>
           <tr>
             <% if index == 0 %>
@@ -25,13 +30,36 @@
                 <div><%= student.email %></div>
               <% end %>
             </td>
+            <% if index == 0 %>
+              <td rowspan="<%= project.groups.size %>" class="align-middle"><%= project.description %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      <% end %>
+
+      <% # ProjectProposal tablosundaki kabul edilmiş teklifler %>
+      <% accepted_proposals.group_by(&:title).each do |title, proposals| %>
+        <% proposals.each_with_index do |proposal, index| %>
+          <tr>
+            <% if index == 0 %>
+              <td rowspan="<%= proposals.size %>" class="align-middle"><%= proposal.title %></td>
+            <% end %>
+            <td><%= proposal.group.name %></td>
+            <td>
+              <% proposal.group.students.each do |student| %>
+                <div><%= student.email %></div>
+              <% end %>
+            </td>
+            <% if index == 0 %>
+              <td rowspan="<%= proposals.size %>" class="align-middle"><%= proposal.description %></td>
+            <% end %>
           </tr>
         <% end %>
       <% end %>
     </tbody>
   </table>
 <% else %>
-  <div class="alert alert-info">Henüz projelerinize atanmış bir grup bulunmamaktadır.</div>
+  <div class="alert alert-info">Henüz onayladığınız projeler veya proje teklifleri bulunmamaktadır.</div>
 <% end %>
 
 <div class="container position-relative">
