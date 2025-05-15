@@ -1,3 +1,13 @@
+<h2 class="mt-4">Grup Kontenjanı</h2>
+
+<%= form_with url: update_group_quota_admin_setting_path, method: :patch, scope: :system_setting do |form| %>
+  <div class="mb-3">
+    <%= form.label :value, "Grup Kontenjanı (Kişi Sayısı)" %>
+    <%= form.number_field :value, value: @group_quota.value || 3, min: 1, class: "form-control" %>
+  </div>
+  <%= form.submit "Kontenjanı Güncelle", class: "btn btn-success" %>
+<% end %>
+
 <h1>Grup Oluşturma Son Tarihi Ayarı</h1>
 
   

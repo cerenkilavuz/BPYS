@@ -11,15 +11,6 @@
     <%= f.label :students_can_register, "Öğrenci Kaydı", class: "form-check-label" %>
   </div>
 
-  <div class="mb-3">
-    <%= f.label :group_creation_deadline, "Grup Oluşturma Son Tarihi" %>
-    <%= f.datetime_select :group_creation_deadline, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :project_submission_deadline, "Proje Oluşturma/Başvuru Son Tarihi" %>
-    <%= f.datetime_select :project_submission_deadline, class: "form-control" %>
-  </div>
-
   <%= f.submit "Kaydet", class: "btn btn-primary" %>
 <% end %>
+

@@ -3,7 +3,8 @@ class Group < ApplicationRecord
   has_many :group_memberships, dependent: :destroy
   has_many :students, through: :group_memberships, source: :student
   belongs_to :project , optional: true
-  has_many :project_proposals
+  has_many :project_proposals, dependent: :destroy
+  has_many :project_requests, dependent: :destroy
 
   validate :within_group_creation_deadline, on: :create
   validate :within_project_selection_deadline, on: :update

@@ -16,16 +16,22 @@ Rails.application.routes.draw do
     resources :advisors , only: [:new, :create]                         # Danışman Ekle (CRUD için)
     resource :system_setting, only: [:edit, :update] 
 
-    resource :setting, only: [:edit, :update] do
+    resource :setting, only: [:edit, :update, :show] do
       get :export_unassigned_students  # bu satırı ekle
       post :email_unassigned_students # e-posta için
       post :random_group_students  #  bunu ekle
+      patch :update_group_quota 
     end
 
     resource :project_setting, only: [:edit, :update] do
       post :assign_random_projects
     end
 
+    resources :allowed_students, only: [:new] do
+      collection do
+        post :import_csv
+      end
+    end
 
   end
 

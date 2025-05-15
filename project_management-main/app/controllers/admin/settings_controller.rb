@@ -12,6 +12,7 @@ module Admin
         @project_deadline = SystemSetting.find_or_initialize_by(key: 'project_selection_deadline')
         @students_without_group = unassigned_students
         @groups = Group.includes(:students).all  # tüm grupları yükle
+        @group_quota = SystemSetting.find_or_initialize_by(key: 'group_quota')
     end
   
 
@@ -24,7 +25,17 @@ module Admin
         end
     end
       
-      
+    def show
+        @deadline = SystemSetting.find_or_initialize_by(key: "deadline")
+        @group_quota = SystemSetting.find_or_initialize_by(key: "group_quota")
+    end
+        
+    def update_group_quota
+        @group_quota = SystemSetting.find_or_initialize_by(key: "group_quota")
+        @group_quota.update(value: params[:system_setting][:value])
+        
+        redirect_to edit_admin_setting_path, notice: "Grup kontenjanı güncellendi."
+    end  
       
 
     def export_unassigned_students

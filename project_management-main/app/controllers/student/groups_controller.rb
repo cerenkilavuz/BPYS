@@ -35,8 +35,12 @@ class Student::GroupsController < ApplicationController
 
   def destroy
     @group = Group.find(params[:id])
-    @group.destroy
-    redirect_to student_groups_path, notice: "Grup başarıyla silindi."
+    if @group.project_id.present?
+      redirect_to student_groups_path, alert: "Bu grup bir projeye atanmış. Grup silinemez."
+    else
+      @group.destroy
+      redirect_to student_groups_path, notice: "Grup başarıyla silindi."
+    end
   end
   
   

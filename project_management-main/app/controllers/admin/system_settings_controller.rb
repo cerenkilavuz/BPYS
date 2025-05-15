@@ -5,6 +5,7 @@ class Admin::SystemSettingsController < ApplicationController
     before_action :require_admin
   
     def edit
+      @allowed_students = AllowedStudent.all
       @system_setting = SystemSetting.instance
     end
   

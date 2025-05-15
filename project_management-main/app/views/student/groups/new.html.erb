@@ -18,20 +18,38 @@
 
   <div class="form-group">
     <div id="student-selects">
-      <!-- Dinamik olarak buraya select kutuları eklenecek -->
-    </div>
+ </div>
     <button type="button" id="add-student" class="btn btn-secondary mt-2">+ Grup Üyesi Ekle</button>
   </div>
 
   <%= f.submit "Grubu Oluştur", class: "btn btn-success mt-3" %>
 <% end %>
 
+<% if (quota = SystemSetting.find_by(key: "group_quota")&.value.to_i).positive? %>
+  <div class="alert alert-info">
+    Grup lideri (siz) dahil olmak üzere toplam <strong><%= quota %></strong> kişi olabilir.
+    Bu nedenle en fazla <strong><%= quota - 1 %></strong> öğrenci ekleyebilirsiniz.
+  </div>
+<% end %>
+
+
 <%= javascript_tag do %>
-  document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("turbo:load", function () {
     const addButton = document.getElementById("add-student");
     const container = document.getElementById("student-selects");
 
+    if (!addButton || addButton.dataset.bound === "true") return; // ✅ Daha önce bind edilmişse durdur
+
+    addButton.dataset.bound = "true"; // ✅ İşaretle ki bir daha bağlanmasın
+
+    const quota = <%= SystemSetting.find_by(key: "group_quota")&.value.to_i || 0 %>;
+    const maxSelectableStudents = quota > 0 ? quota - 1 : 0;
+
     const students = <%= raw(User.where(role: "student").where.not(id: current_user.id).map { |u| { id: u.id, email: u.email, has_group: u.group.present? } }.to_json) %>;
+
+    function getCurrentStudentCount() {
+      return container.querySelectorAll("select").length;
+    }
 
     function createSelect() {
       const wrapper = document.createElement("div");
@@ -47,10 +65,10 @@
       emptyOption.text = "Bir öğrenci seçin...";
       select.appendChild(emptyOption);
 
-      students.forEach(function(student) {
+      students.forEach(function (student) {
         const option = document.createElement("option");
         option.value = student.id;
-        option.text = student.email + (student.has_group ? "" : "");
+        option.text = student.email + (student.has_group ? " (Zaten grupta)" : "");
         if (student.has_group) option.disabled = true;
         select.appendChild(option);
       });
@@ -59,7 +77,12 @@
       removeBtn.type = "button";
       removeBtn.className = "btn btn-outline-danger btn-sm";
       removeBtn.innerText = "❌";
-      removeBtn.onclick = () => wrapper.remove();
+      removeBtn.onclick = () => {
+        wrapper.remove();
+        if (getCurrentStudentCount() < maxSelectableStudents) {
+          addButton.disabled = false;
+        }
+      };
 
       wrapper.appendChild(select);
       wrapper.appendChild(removeBtn);
@@ -67,9 +90,19 @@
       return wrapper;
     }
 
-    addButton.addEventListener("click", function() {
-      const newSelect = createSelect();
-      container.appendChild(newSelect);
+    addButton.addEventListener("click", function () {
+      const current = getCurrentStudentCount();
+      if (current >= maxSelectableStudents) {
+        alert("Kotaya ulaştınız! Daha fazla öğrenci ekleyemezsiniz.");
+        addButton.disabled = true;
+        return;
+      }
+
+      container.appendChild(createSelect());
+
+      if (getCurrentStudentCount() >= maxSelectableStudents) {
+        addButton.disabled = true;
+      }
     });
   });
 <% end %>

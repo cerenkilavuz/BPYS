@@ -1,0 +1,39 @@
+<%= form_with url: import_csv_admin_allowed_students_path, local: true, multipart: true, html: { class: "mb-4" } do |form| %>
+  <div class="mb-3">
+    <%= form.label :file, "CSV Dosyası Yükle", class: "form-label" %>
+    <%= form.file_field :file, class: "form-control" %>
+  </div>
+  <%= form.submit "CSV Yükle", class: "btn btn-primary" %>
+<% end %>
+
+<h2 class="mb-4">Sistemde Kayıtlı Olmayan Öğrenciler</h2>
+<% registered_emails = User.pluck(:email) %>
+
+<% if @allowed_students.any? { |s| !registered_emails.include?(s.email) } %>
+  <table class="table table-bordered table-striped">
+    <thead class="table-light">
+      <tr>
+        <th>Ad</th>
+        <th>Soyad</th>
+        <th>Öğrenci No</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @allowed_students.each do |student| %>
+        <% unless registered_emails.include?(student.email) %>
+          <tr>
+            <td><%= student.name %></td>
+            <td><%= student.surname %></td>
+            <td><%= student.student_number %></td>
+            <td><%= student.email %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="alert alert-info mt-3">
+    Sisteme kayıtlı olmayan öğrenci bulunmamaktadır.
+  </div>
+<% end %>

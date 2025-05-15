@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_03_084804) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_03_141427) do
+  create_table "allowed_students", force: :cascade do |t|
+    t.string "name"
+    t.string "surname"
+    t.string "student_number"
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "group_memberships", force: :cascade do |t|
     t.integer "group_id"
     t.integer "student_id"
@@ -77,6 +86,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_03_084804) do
     t.datetime "updated_at", null: false
     t.string "key"
     t.string "value"
+    t.integer "group_quota"
   end
 
   create_table "users", force: :cascade do |t|
