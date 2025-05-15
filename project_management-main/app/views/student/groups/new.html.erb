@@ -5,15 +5,14 @@
   <div id="members">
     <!-- Grup lideri (current_user) -->
     <div class="input-group mb-2">
-      <input type="email" class="form-control" value="<%= current_user.email %>" disabled>
+      <input type="text" class="form-control" value="<%= "#{current_user.first_name} #{current_user.last_name}" + " - " + "#{current_user.student_number}" %>" disabled>
       <input type="hidden" name="group[member_emails][]" value="<%= current_user.email %>">
       <span class="input-group-text bg-secondary text-white">Lider</span>
     </div>
   </div>
 
   <div class="form-group">
-    <div id="student-selects">
- </div>
+    <div id="student-selects"></div>
     <button type="button" id="add-student" class="btn btn-secondary mt-2">+ Grup Üyesi Ekle</button>
   </div>
 
@@ -33,14 +32,23 @@
     const addButton = document.getElementById("add-student");
     const container = document.getElementById("student-selects");
 
-    if (!addButton || addButton.dataset.bound === "true") return; // ✅ Daha önce bind edilmişse durdur
+    if (!addButton || addButton.dataset.bound === "true") return;
 
-    addButton.dataset.bound = "true"; // ✅ İşaretle ki bir daha bağlanmasın
+    addButton.dataset.bound = "true";
 
     const quota = <%= SystemSetting.find_by(key: "group_quota")&.value.to_i || 0 %>;
     const maxSelectableStudents = quota > 0 ? quota - 1 : 0;
 
-    const students = <%= raw(User.where(role: "student").where.not(id: current_user.id).map { |u| { id: u.id, email: u.email, has_group: u.group.present? } }.to_json) %>;
+    const students = <%= raw(
+      User.where(role: "student").where.not(id: current_user.id).map do |u|
+        {
+          id: u.id,
+          name: "#{u.first_name} #{u.last_name}".strip.presence || u.email,
+          stu_no: "#{u.student_number}",
+          has_group: u.group.present?
+        }
+      end.to_json
+    ) %>;
 
     function getCurrentStudentCount() {
       return container.querySelectorAll("select").length;
@@ -63,7 +71,7 @@
       students.forEach(function (student) {
         const option = document.createElement("option");
         option.value = student.id;
-        option.text = student.email + (student.has_group ? " (Zaten grupta)" : "");
+        option.text = student.name + " - " + student.stu_no + (student.has_group ? " (Zaten grupta)" : "");
         if (student.has_group) option.disabled = true;
         select.appendChild(option);
       });

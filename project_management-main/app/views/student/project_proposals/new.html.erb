@@ -2,8 +2,8 @@
 
 <%= form_with model: @project_proposal, url: student_project_proposals_path, local: true do |form| %>
   <div class="field">
-    <%= form.label :advisor_id, "Danışman" %>
-    <%= form.collection_select :advisor_id, @advisors, :id, :email, prompt: "Danışman Seç" %>
+    <%= form.label :advisor_id, "Danışman" %> <br>
+    <%= form.select :advisor_id, options_from_collection_for_select(@advisors, :id, :full_name, @project_proposal.advisor_id), prompt: "Danışman Seç" %>
   </div>
 
   <div class="field">

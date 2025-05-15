@@ -1,6 +1,15 @@
 <h2>Yeni Danışman Ekle</h2>
 
 <%= form_with model: @advisor, url: admin_advisors_path, local: true do |f| %>
+  <div class="form-group">
+    <%= f.label :first_name %>
+    <%= f.text_field :first_name, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :last_name %>
+    <%= f.text_field :last_name, class: "form-control" %>
+  </div>
 
   <div class="form-group">
     <%= f.label :email %>
@@ -17,5 +26,34 @@
     <%= f.password_field :password_confirmation, class: "form-control" %>
   </div>
 
-  <%= f.submit "Danışman Ekle", class: "btn btn-success" %>
+  <%= f.submit "Danışman Ekle", class: "btn btn-success mt-3" %>
+<% end %>
+
+<hr class="my-5">
+
+<h2>Mevcut Danışmanlar</h2>
+
+<% if @advisors.any? %>
+  <div class="table-responsive mt-3">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Ad Soyad</th>
+          <th>E-posta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @advisors.each do |advisor| %>
+          <tr>
+            <td><%= advisor.full_name %></td>
+            <td><%= advisor.email %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="alert alert-info mt-3">
+    Henüz sistemde kayıtlı danışman bulunmamaktadır.
+  </div>
 <% end %>

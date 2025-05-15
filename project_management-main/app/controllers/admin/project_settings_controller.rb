@@ -26,30 +26,69 @@ module Admin
         groups = groups_without_project(deadline)
         return redirect_to edit_admin_project_setting_path, alert: "Proje seçimi yapmamış grup bulunmamaktadır." if groups.empty?
       
-        # Tüm projeleri kontenjan ve atanmış grup sayısıyla birlikte al
-        project_slots = Project.includes(:groups).map do |project|
+        # Danışman bazlı: { advisor_id => { projects: [[project, remaining]], group_count: n } }
+        advisor_data = {}
+      
+        Project.includes(:groups, :advisor).each do |project|
+          advisor = project.advisor
+          next unless advisor && advisor.role == "advisor"
+          
           max_quota = project.quota || 0
           assigned = project.groups.count
           remaining = max_quota - assigned
-          [project, remaining]
-        end.select { |_, remaining| remaining > 0 }
+          next if remaining <= 0
       
-        if project_slots.empty?
-          return redirect_to edit_admin_project_setting_path, alert: "Hiçbir projede boş kontenjan bulunmamaktadır."
+          advisor_data[advisor.id] ||= { projects: [], group_count: 0 }
+          advisor_data[advisor.id][:projects] << [project, remaining]
+          advisor_data[advisor.id][:group_count] += assigned
         end
       
-        # Grupları sırasıyla projelere ata
+        return redirect_to edit_admin_project_setting_path, alert: "Hiçbir projede boş kontenjan bulunmamaktadır." if advisor_data.empty?
+      
+        # Grupları sırayla ata
         groups.each do |group|
-          # İlk boş kontenjanı olan projeyi bul
-          project_with_slot = project_slots.find { |_, remaining| remaining > 0 }
-          break unless project_with_slot
+          # En az gruba sahip danışmanı bul
+          selected_advisor_id, advisor_info = advisor_data.min_by { |_, data| data[:group_count] }
+      
+          next unless advisor_info
+      
+          # Danışmanın boş kontenjanı olan bir projesini bul
+          project_with_slot = advisor_info[:projects].find { |_, remaining| remaining > 0 }
+      
+          next unless project_with_slot
       
           project, remaining = project_with_slot
+      
           group.update(project: project)
-          project_with_slot[1] -= 1 # Kontenjanı güncelle
+          project_with_slot[1] -= 1
+          advisor_info[:group_count] += 1
+      
+          # Eğer bu projede kontenjan biterse, listeden çıkarmaya gerek yok çünkü find ile sadece kalanlara bakılıyor
         end
       
-        redirect_to edit_admin_project_setting_path, notice: "Projeler başarıyla atandı."
+        redirect_to edit_admin_project_setting_path, notice: "Projeler danışmanlara dengeli şekilde atandı."
+      end
+      
+      
+      def rename_groups
+        if Group.where(project_id: nil).exists?
+          redirect_to admin_projects_path, alert: "Projesiz grup kaldığı için işlem yapılamadı."
+          return
+        end
+      
+        User.where(role: "advisor").includes(projects: :groups).find_each do |advisor|
+          code = advisor.advisor_code
+          counter = 1
+      
+          advisor.projects.each do |project|
+            project.groups.each do |group|
+              group.update(name: "#{code}#{counter}")
+              counter += 1
+            end
+          end
+        end
+      
+        redirect_to admin_project_setting_path, notice: "Gruplar başarıyla yeniden adlandırıldı."
       end
       
   

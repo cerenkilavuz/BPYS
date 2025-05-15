@@ -1,20 +1,41 @@
-<h2>Öğrencilerden Gelen Proje Teklifleri</h2>
+<h2 class="mb-4">Öğrencilerden Gelen Proje Teklifleri</h2>
 
-<% if @project_proposals.where(status: 'pending').any? %>
-  <% @project_proposals.where(status: 'pending').each do |proposal| %>
-    <div class="project-proposal mb-4 p-3 border rounded shadow-sm">
-      <p><strong>Başlık:</strong> <%= proposal.title %></p>
-      <p><strong>Öğrenci:</strong> <%= proposal.group.name %></p>
-      <p><strong>Açıklama:</strong> <%= proposal.description %></p>
+<% pending_proposals = @project_proposals.where(status: 'pending') %>
 
-      <div class="actions mt-2">
-        <%= button_to 'Kabul Et', accept_advisor_project_proposal_path(proposal), method: :patch, class: "btn btn-sm btn-success me-2", data: { turbo: false } %>
-        <%= button_to 'Reddet', reject_advisor_project_proposal_path(proposal), method: :patch, class: "btn btn-sm btn-danger", data: { turbo: false } %>
-      </div>
-
-      <hr>
-    </div>
-  <% end %>
+<% if pending_proposals.any? %>
+  <div class="table-responsive shadow-sm rounded border mb-4">
+    <table class="table table-bordered table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Proje Başlığı</th>
+          <th>Açıklama</th>
+          <th>Grup Üyeleri</th>
+          <th class="text-center" style="width: 150px;">İşlem</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% pending_proposals.each do |proposal| %>
+          <tr>
+            <td><%= proposal.title %></td>
+            <td><%= proposal.description.truncate(100) %></td>
+            <td>
+              <ul class="mb-0">
+                <% proposal.group.students.each do |student| %>
+                  <li><%= "#{student.full_name} - #{student.student_number}" %></li>
+                <% end %>
+              </ul>
+            </td>
+            <td class="text-center">
+              <div class="d-flex justify-content-center gap-2">
+                <%= button_to 'Kabul Et', accept_advisor_project_proposal_path(proposal), method: :patch, class: "btn btn-sm btn-outline-success", data: { turbo: false } %>
+                <%= button_to 'Reddet', reject_advisor_project_proposal_path(proposal), method: :patch, class: "btn btn-sm btn-outline-danger", data: { turbo: false } %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 <% else %>
   <div class="alert alert-info">Şu anda herhangi bir proje isteği bulunmamaktadır.</div>
 <% end %>

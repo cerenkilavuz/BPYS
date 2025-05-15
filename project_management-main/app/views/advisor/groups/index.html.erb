@@ -13,7 +13,6 @@
         <th>Proje Başlığı</th>
         <th>Grup Adı</th>
         <th>Grup Üyeleri</th>
-        <th>Açıklama</th>
       </tr>
     </thead>
     <tbody>
@@ -26,33 +25,12 @@
             <% end %>
             <td><%= group.name %></td>
             <td>
-              <% group.students.each do |student| %>
-                <div><%= student.email %></div>
-              <% end %>
+              <ul class="mb-0">
+                <% group.students.each do |student| %>
+                  <li><%= "#{student.first_name} #{student.last_name} - #{student.student_number}" %></li>
+                <% end %>
+              </ul>
             </td>
-            <% if index == 0 %>
-              <td rowspan="<%= project.groups.size %>" class="align-middle"><%= project.description %></td>
-            <% end %>
-          </tr>
-        <% end %>
-      <% end %>
-
-      <% # ProjectProposal tablosundaki kabul edilmiş teklifler %>
-      <% accepted_proposals.group_by(&:title).each do |title, proposals| %>
-        <% proposals.each_with_index do |proposal, index| %>
-          <tr>
-            <% if index == 0 %>
-              <td rowspan="<%= proposals.size %>" class="align-middle"><%= proposal.title %></td>
-            <% end %>
-            <td><%= proposal.group.name %></td>
-            <td>
-              <% proposal.group.students.each do |student| %>
-                <div><%= student.email %></div>
-              <% end %>
-            </td>
-            <% if index == 0 %>
-              <td rowspan="<%= proposals.size %>" class="align-middle"><%= proposal.description %></td>
-            <% end %>
           </tr>
         <% end %>
       <% end %>

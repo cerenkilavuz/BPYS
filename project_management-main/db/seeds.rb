@@ -9,8 +9,6 @@
 #   end
 #   
 User.create(email: "admin@example.com", password: "123123", role: :admin)
-User.create(email: "advisor1@example.com", password: "123123", role: :advisor)
-User.create(email: "advisor2@example.com", password: "123123", role: :advisor)
 
 SystemSetting.find_or_create_by(key: 'group_creation_deadline') do |system_setting|
     system_setting.value = (Date.today + 7.days).to_s # varsayılan olarak 7 gün sonrası

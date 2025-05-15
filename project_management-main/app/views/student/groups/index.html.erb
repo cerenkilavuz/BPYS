@@ -4,7 +4,6 @@
   <p><strong>Son grup oluşturma tarihi:</strong> <%= deadline.strftime("%d.%m.%Y") %></p>
 <% end %>
 
-
 <% if @group.present? %>
   <div class="mb-4">
     <p><strong>Grup Adı:</strong> <%= @group.name %></p>
@@ -13,14 +12,16 @@
   <table class="table table-bordered table-striped">
     <thead class="table-dark">
       <tr>
-        <th>Üye E-posta</th>
+        <th>Üye Adı Soyadı</th>
+        <th>Öğrenci Numarası</th>
         <th>Rol</th>
       </tr>
     </thead>
     <tbody>
       <% @group.students.each do |student| %>
         <tr>
-          <td><%= student.email %></td>
+          <td><%= "#{student.first_name} #{student.last_name}" %></td>
+          <td><%= "#{student.student_number}" %></td>
           <td>
             <%= student == @group.leader ? "Lider" : "Üye" %>
           </td>

@@ -25,6 +25,7 @@ Rails.application.routes.draw do
 
     resource :project_setting, only: [:edit, :update] do
       post :assign_random_projects
+      patch :rename_groups
     end
 
     resources :allowed_students, only: [:new] do

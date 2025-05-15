@@ -8,7 +8,7 @@
       <tr>
         <th>Proje Adı</th>
         <th>Grup Adı</th>
-        <th>Grup Lideri</th>
+        <th>Grup Üyeleri</th>
         <th>İşlem</th>
       </tr>
     </thead>
@@ -19,8 +19,14 @@
             <% if index == 0 %>
               <td rowspan="<%= requests.size %>" class="align-middle"><%= project.title %></td>
             <% end %>
-            <td><%= request.group&.name || "Silinmiş grup" %></td>
-            <td><%= request.group&.leader&.email || "Silinmiş lider" %></td>
+            <td><%= request.group.name %></td>
+            <td>
+              <ul class="mb-0">
+                <% request.group.students.each do |student| %>
+                  <li><%= "#{student.full_name} - #{student.student_number}" %></li>
+                <% end %>
+              </ul>
+            </td>
             <td>
               <div class="d-flex gap-2">
                 <%= button_to 'Kabul Et', accept_advisor_project_request_path(request), method: :patch, class: "btn btn-sm btn-success", data: { turbo: false } %>

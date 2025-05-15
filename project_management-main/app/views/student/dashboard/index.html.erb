@@ -7,7 +7,7 @@
 <% if project.present? || project_proposal.present? %>
   <% display_data = {
     title: project&.title || project_proposal&.title,
-    advisor: project&.advisor&.email || project_proposal&.advisor&.email || "Danışman atanmamış",
+    advisor: project&.advisor&.full_name || project_proposal&.advisor&.full_name || "Danışman atanmamış",
     group_name: group.name,
     students: group.students,
     description: project&.description || project_proposal&.description,
@@ -36,7 +36,7 @@
             <td>
               <ul class="mb-0">
                 <% display_data[:students].each do |user| %>
-                  <li><%= user.email %></li>
+                  <li><%= "#{user.first_name} #{user.last_name} - #{user.student_number}" %></li>
                 <% end %>
               </ul>
             </td>
@@ -49,6 +49,15 @@
       </table>
     </div>
   </div>
+
+  <%# Ek olarak: Reddedilmemiş başka bir proje önerisi varsa durumu göster %>
+  <% other_proposal = group.project_proposals.where.not(status: "rejected").where.not(id: project_proposal&.id).first %>
+  <% if other_proposal.present? %>
+    <div class="alert alert-warning mt-3">
+      Mevcut bir başka proje teklifiniz var. Durumu: <strong><%= other_proposal.status.capitalize %></strong>
+    </div>
+  <% end %>
+
 <% else %>
   <div class="alert alert-info">
     Henüz bir projeye atanmadınız veya proje teklifiniz onaylanmadı.

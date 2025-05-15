@@ -6,8 +6,9 @@ module Admin
   
       def new
         @advisor = User.new
+        @advisors = User.where(role: "advisor")
       end
-  
+     
       def create
         @advisor = User.new(advisor_params)
         @advisor.role = 'advisor'  # Danışman rolü atanıyor
@@ -22,7 +23,7 @@ module Admin
       private
   
       def advisor_params
-        params.require(:user).permit(:email, :password, :password_confirmation)
+        params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation)
       end
   
       def require_admin

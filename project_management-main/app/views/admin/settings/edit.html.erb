@@ -28,14 +28,16 @@
     <table class="table table-striped table-bordered">
       <thead>
         <tr>
-          <th>Email</th>
+          <th>Ad Soyad</th>
+          <th>Öğrenci Numarası</th>
           <th>Kayıt Tarihi</th>
         </tr>
       </thead>
       <tbody>
         <% @students_without_group.each do |student| %>
           <tr>
-            <td><%= student.email %></td>
+            <td><%= student.full_name %></td>
+            <td><%= student.student_number %></td>
             <td><%= student.created_at.strftime("%d.%m.%Y") %></td>
           </tr>
         <% end %>
@@ -54,11 +56,11 @@
 
 <h2 class="mt-4">Mevcut Gruplar</h2>
 
-<table class="table table-bordered">
+<table class="table table-striped table-bordered">
   <thead>
     <tr>
       <th>Grup Adı</th>
-      <th>Öğrenciler</th>
+      <th>Grup Üyeleri</th>
     </tr>
   </thead>
   <tbody>
@@ -66,9 +68,11 @@
       <tr>
         <td><%= group.name %></td>
         <td>
-          <% group.students.each do |student| %>
-            <%= student.email %><br>
-          <% end %>
+          <ul class="mb-0 ps-3">
+            <% group.students.each do |student| %>
+              <li><%= student.full_name %> - <%= student.student_number %></li>
+            <% end %>
+          </ul>
         </td>
       </tr>
     <% end %>

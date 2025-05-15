@@ -12,7 +12,7 @@
   </thead>
   <tbody>
     <% @projects.group_by(&:advisor).each do |advisor, projects| %>
-      <% advisor_email = advisor&.email || "Bilinmiyor" %>
+      <% advisor_name = "#{advisor&.first_name} #{advisor&.last_name} "|| "Bilinmiyor" %>
 
       <% group = current_user.group %>
 
@@ -32,7 +32,7 @@
 
         <tr>
           <% if index == 0 %>
-            <td rowspan="<%= projects.size %>" class="align-middle"><%= advisor_email %></td>
+            <td rowspan="<%= projects.size %>" class="align-middle"><%= advisor_name %></td>
           <% end %>
           <td><%= project.title %></td>
           <td><%= project.description.truncate(80) %></td>

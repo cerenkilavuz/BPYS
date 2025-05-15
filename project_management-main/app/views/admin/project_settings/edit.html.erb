@@ -34,13 +34,13 @@
             <% groups.each_with_index do |group, index| %>
               <tr>
                 <% if index == 0 %>
-                  <td rowspan="<%= groups.size %>"><%= advisor&.email || "Bilinmiyor" %></td>
+                  <td rowspan="<%= groups.size %>"><%= advisor&.full_name || "Bilinmiyor" %></td>
                 <% end %>
                 <td><%= group.name %></td>
                 <td>
                   <ul class="mb-0 ps-3">
                     <% group.students.each do |student| %>
-                      <li><%= student.email %></li>
+                      <li><%= student.full_name %> - <%= student.student_number %></li>
                     <% end %>
                   </ul>
                 </td>
@@ -51,6 +51,7 @@
           <% end %>
         </tbody>
       </table>
+      <%= button_to "Grupları Danışman Kodlarıyla Yeniden Adlandır", rename_groups_admin_project_setting_path, method: :patch, class: "btn btn-outline-primary mt-4", data: { confirm: "Tüm grup adları yeniden adlandırılacak. Emin misiniz?" } %>
     </div>
   <% else %>
     <div class="alert alert-info">Proje seçimi yapmış grup bulunmamaktadır.</div>
@@ -63,6 +64,7 @@
         <thead class="table-light">
           <tr>
             <th>Grup Adı</th>
+            <th>Grup Üyeleri</th>
             <th>Oluşturulma Tarihi</th>
           </tr>
         </thead>
@@ -70,6 +72,13 @@
           <% @groups_without_project.each do |group| %>
             <tr>
               <td><%= group.name %></td>
+              <td>
+                  <ul class="mb-0 ps-3">
+                    <% group.students.each do |student| %>
+                      <li><%= student.full_name %> - <%= student.student_number %></li>
+                    <% end %>
+                  </ul>
+                </td>
               <td><%= group.created_at.strftime("%d.%m.%Y") %></td>
             </tr>
           <% end %>

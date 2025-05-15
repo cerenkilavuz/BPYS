@@ -1,34 +1,40 @@
-<div class="container">
-<div class="d-flex justify-content-between align-items-center mb-3">
-<h1>Proje Yönetimi</h1>
-<%= link_to "Geri", advisor_projects_path, class: "btn btn-outline-secondary" %>
-</div>
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Proje Yönetimi</h1>
+    <%= link_to "Geri", advisor_projects_path, class: "btn btn-outline-secondary" %>
+  </div>
 
-  <%= link_to "Proje Ekle", new_advisor_project_path, class: "btn btn-success mb-3" %>
+  <div class="mb-4">
+    <%= link_to "Proje Ekle", new_advisor_project_path, class: "btn btn-outline-success" %>
+  </div>
 
   <% if @projects.any? %>
-    <table class="table table-striped table-bordered">
-      <thead class="table-dark">
-        <tr>
-          <th>Proje Başlığı</th>
-          <th>Açıklama</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @projects.each do |project| %>
+    <div>
+      <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
           <tr>
-            <td><%= project.title %></td>
-            <td><%= project.description %></td>
-            <td>
-              <%= link_to "Düzenle", edit_advisor_project_path(project), class: "btn btn-warning btn-sm me-2" %>
-              <%= link_to "Sil", advisor_project_path(project), method: :delete, data: { turbo_method: :delete }, class: "btn btn-danger btn-sm" %>
-            </td>
+            <th>Proje Başlığı</th>
+            <th>Açıklama</th>
+            <th class="text-center" style="width: 150px;">İşlemler</th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% @projects.each do |project| %>
+            <tr>
+              <td class="fw-semibold"><%= project.title %></td>
+              <td><%= project.description.truncate(100) %></td>
+              <td class="text-center">
+                <%= link_to "Düzenle", edit_advisor_project_path(project), class: "btn btn-sm btn-outline-primary me-2", title: "Düzenle" %>
+                <%= link_to "Sil", advisor_project_path(project), method: :delete, data: { turbo_method: :delete, confirm: "Bu projeyi silmek istediğinize emin misiniz?" }, class: "btn btn-sm btn-outline-danger", title: "Sil" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   <% else %>
-    <p>Henüz proje eklenmemiş.</p>
+    <div class="alert alert-info" role="alert">
+      Henüz proje eklenmemiş.
+    </div>
   <% end %>
 </div>
