@@ -15,13 +15,16 @@ class Student::GroupsController < ApplicationController
     @group = Group.new(group_params)
     @group.leader = current_user
   
+    # Grup ismini otomatik olarak oluştur
+    @group.name = "Grup #{SecureRandom.hex(3).upcase}"  # Örn: Grup A1B2C3
+  
     if @group.save
       # Lideri gruba otomatik olarak ekle
       GroupMembership.create(group: @group, student: current_user)
   
       # Seçilen öğrenci ID'lerini ekle
       if params[:group][:student_ids]
-        student_ids = params[:group][:student_ids].reject(&:blank?) # boşlukları sil
+        student_ids = params[:group][:student_ids].reject(&:blank?)
         student_ids.each do |student_id|
           GroupMembership.create(group: @group, student_id: student_id)
         end
@@ -32,6 +35,7 @@ class Student::GroupsController < ApplicationController
       render :new
     end
   end
+  
 
   def destroy
     @group = Group.find(params[:id])

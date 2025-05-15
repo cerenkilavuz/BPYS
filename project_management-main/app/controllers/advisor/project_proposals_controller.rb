@@ -10,9 +10,27 @@ class Advisor::ProjectProposalsController < ApplicationController
   
     # Kabul etme işlemi
     def accept
-      @project_proposal.update(status: :accepted)
-      redirect_to advisor_project_proposals_path, notice: "Proje teklifi kabul edildi."
+      ActiveRecord::Base.transaction do
+        # Yeni proje oluştur
+        project = Project.create!(
+          title: @project_proposal.title,
+          description: @project_proposal.description,
+          advisor_id: current_user.id,  # veya başka bir şekilde atanıyorsa düzenle
+          quota: 1 # İsteğe bağlı, varsayılan olarak 1 grup için ayarlanabilir
+        )
+    
+        # Gruba projeyi ata
+        @project_proposal.group.update!(project: project)
+    
+        # Teklifi kabul edilmiş olarak işaretle
+        @project_proposal.update!(status: :accepted)
+      end
+    
+      redirect_to advisor_project_proposals_path, notice: "Proje teklifi kabul edildi ve proje oluşturuldu."
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to advisor_project_proposals_path, alert: "Proje oluşturulurken bir hata oluştu: #{e.message}"
     end
+    
   
     # Reddetme işlemi
     def reject

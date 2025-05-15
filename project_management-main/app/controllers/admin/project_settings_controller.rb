@@ -22,23 +22,36 @@ module Admin
       def assign_random_projects
         deadline = SystemSetting.find_by(key: 'project_selection_deadline')&.value_as_date
         return redirect_to edit_admin_project_setting_path, alert: "Proje seçim tarihi belirlenmemiş." unless deadline
-  
+      
         groups = groups_without_project(deadline)
         return redirect_to edit_admin_project_setting_path, alert: "Proje seçimi yapmamış grup bulunmamaktadır." if groups.empty?
-  
-        used_project_ids = Group.where.not(project_id: nil).pluck(:project_id)
-        available_projects = Project.where.not(id: used_project_ids)
-  
-        groups.each do |group|
-          project = available_projects.sample
-          if project
-            group.update(project: project)
-            available_projects = available_projects.where.not(id: project.id)
-          end
+      
+        # Tüm projeleri kontenjan ve atanmış grup sayısıyla birlikte al
+        project_slots = Project.includes(:groups).map do |project|
+          max_quota = project.quota || 0
+          assigned = project.groups.count
+          remaining = max_quota - assigned
+          [project, remaining]
+        end.select { |_, remaining| remaining > 0 }
+      
+        if project_slots.empty?
+          return redirect_to edit_admin_project_setting_path, alert: "Hiçbir projede boş kontenjan bulunmamaktadır."
         end
-  
-        redirect_to edit_admin_project_setting_path, notice: "Rastgele projeler başarıyla atandı."
+      
+        # Grupları sırasıyla projelere ata
+        groups.each do |group|
+          # İlk boş kontenjanı olan projeyi bul
+          project_with_slot = project_slots.find { |_, remaining| remaining > 0 }
+          break unless project_with_slot
+      
+          project, remaining = project_with_slot
+          group.update(project: project)
+          project_with_slot[1] -= 1 # Kontenjanı güncelle
+        end
+      
+        redirect_to edit_admin_project_setting_path, notice: "Projeler başarıyla atandı."
       end
+      
   
       private
   
@@ -47,22 +60,15 @@ module Admin
       end
   
       def groups_with_projects(deadline)
-        Group.includes(:project, :project_proposals)
-             .where('groups.created_at <= ?', deadline.end_of_day)
-             .select do |group|
-               group.project.present? || group.project_proposals.any? { |p| p.status == 'accepted' }
-             end
+        Group.where.not(project_id: nil)
+             .where('created_at <= ?', deadline.end_of_day)
       end
       
-  
       def groups_without_project(deadline)
-        Group.includes(:project, :project_proposals)
-             .where('groups.created_at <= ?', deadline.end_of_day)
-             .select do |group|
-               group.project.blank? && group.project_proposals.none? { |p| p.status == 'accepted' }
-             end
+        Group.where(project_id: nil)
+             .where('created_at <= ?', deadline.end_of_day)
       end
-      
+          
   
       def require_admin
         redirect_to root_path unless current_user.admin?

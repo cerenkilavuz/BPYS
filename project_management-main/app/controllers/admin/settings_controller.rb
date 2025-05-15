@@ -83,7 +83,7 @@ module Admin
       
         groups.each do |members|
           leader = members.first
-          group = Group.create!(name: "Grup #{SecureRandom.hex(3)}", leader: leader)
+          group = Group.create!(name: "Grup #{SecureRandom.hex(3).upcase}", leader: leader)
           members.each do |student|
             GroupMembership.create!(group: group, student: student)
           end

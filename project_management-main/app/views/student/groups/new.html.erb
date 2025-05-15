@@ -1,11 +1,6 @@
 <h2>Yeni Grup Oluştur</h2>
 
 <%= form_with model: @group, url: student_groups_path, method: :post, local: true do |f| %>
-  <div class="form-group">
-    <%= f.label :name, "Grup Adı" %>
-    <%= f.text_field :name, class: "form-control", required: true %>
-  </div>
-
   <h4>Grup Üyeleri</h4>
   <div id="members">
     <!-- Grup lideri (current_user) -->
