@@ -1,38 +1,60 @@
-<h2>Yaptığınız Proje Teklifleri</h2>
-
-<% group = current_user.group %>
-      <% leader_request = ProjectRequest.find_by(group_id: group.id, status: [:pending, :accepted]) %>
-      <% proposal_exists = group.project_proposals.where(status: [:pending, :accepted]).exists? %>
-
-<% disable_button = leader_request || proposal_exists %>
-
-<% if disable_button %>
-  <%= button_tag "Yeni Proje Teklifi Oluştur", class: "btn btn-secondary mb-3", disabled: true, title: "Zaten bir başvurunuz veya proje teklifiniz var" %>
+<% deadline = SystemSetting.find_by(key: 'project_selection_deadline')&.value_as_date %>
+<% if deadline.present? && Date.today > deadline %>
+  <div class="alert alert-danger">
+    Proje seçme süresi sona ermiştir. Artık proje başvurusunda bulunamazsınız.
+  </div>
 <% else %>
-  <%= link_to "Yeni Proje Teklifi Oluştur", new_student_project_proposal_path, class: "btn btn-primary mb-3" %>
-<% end %>
+    <h2>Yaptığınız Proje Teklifleri</h2>
 
-<% if @project_proposals.any? %>  <!-- Burada herhangi bir proje teklifi var mı diye kontrol ediyoruz -->
-  <table class="table table-bordered table-hover">
-    <thead>
-      <tr>
-        <th>Başlık</th>
-        <th>Açıklama</th>
-        <th>Danışman</th>
-        <th>Durum</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @project_proposals.each do |proposal| %> <!-- Teklifler üzerinde döngü yapıyoruz -->
-        <tr>
-          <td><%= proposal.title %></td>
-          <td><%= proposal.description.truncate(80) %></td> <!-- Açıklamayı 80 karakterle sınırladık -->
-          <td><%= proposal.advisor.email %></td>
-          <td><%= proposal.status.capitalize %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p>Henüz bir proje teklifinde bulunmadınız.</p>
+    <% group = current_user.group %>
+          <% leader_request = ProjectRequest.find_by(group_id: group.id, status: [:pending]) %>
+          <% proposal_exists = group.project_proposals.where(status: [:pending]).exists? %>
+          <% assigned_to_project = group.project_id.present? %>
+
+    <% disable_button = leader_request || proposal_exists || assigned_to_project%>
+
+    <% if disable_button %>
+      <%= button_tag "Yeni Proje Teklifi Oluştur", class: "btn btn-outline-secondary mb-3", disabled: true, title: "Zaten bir başvurunuz veya proje teklifiniz var" %>
+    <% else %>
+      <%= link_to "Yeni Proje Teklifi Oluştur", new_student_project_proposal_path, class: "btn btn-outline-primary mb-3" %>
+    <% end %>
+
+    <% if @project_proposals.any? %>  <!-- Burada herhangi bir proje teklifi var mı diye kontrol ediyoruz -->
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr class="table table-dark text-white"> 
+            <th>Başlık</th>
+            <th>Açıklama</th>
+            <th>Danışman</th>
+            <th>Durum</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @project_proposals.each do |proposal| %> <!-- Teklifler üzerinde döngü yapıyoruz -->
+            <tr>
+              <td><%= proposal.title %></td>
+              <td><%= proposal.description.truncate(100) %></td> <!-- Açıklamayı 80 karakterle sınırladık -->
+              <td><%= proposal.advisor.email %></td>
+              <td>
+                <% case proposal.status %>
+                <% when "pending" %>
+                  <span class="fw-bold text-warning">Beklemede</span>
+                <% when "accepted" %>
+                  <span class="fw-bold text-success">Kabul Edildi</span>
+                <% when "rejected" %>
+                  <span class="fw-bold text-danger">Reddedildi</span>
+                <% else %>
+                  <span class="fw-bold text-secondary"><%= proposal.status.capitalize %></span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>Henüz bir proje teklifinde bulunmadınız.</p>
+    <% end %>
 <% end %>
+<div class="container position-relative">
+  <%= link_to "Geri", student_projects_path, class: "btn btn-sm btn-outline-secondary position-absolute", style: "top: 1rem; right: 1rem; z-index: 10;" %>
+</div>

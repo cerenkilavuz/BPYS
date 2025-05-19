@@ -1,18 +1,28 @@
+<div class="alert alert-info">
+  <strong>OMÜ BPYS'ye Hoş Geldiniz!</strong><br>
+  Yapabilecekleriniz:<br>
+  • Arkadaşlarınız ile grup oluşturabilirsiniz. Grubu oluşturan öğrencinin grup lideri 
+  olarak atandığını ve kalan süreçte bütün işlemlerin grup lideri tarafından yapılacağını unutmayın! 
+  Diğer grup üyeleri de süreci sistemden takip edebilir.<br>
+  • İstediğiniz danışmana proje önerisinde bulunabilirsiniz.<br>
+  • Danışmanların sunduğu projeleri görüntüleyebilir ve bu projelere başvurabilirsiniz.<br>
+  • Atandığınız projeyi ve grup bilgilerinizi takip edebilirsiniz.
+</div>
+
 <h2 class="mb-4">Projeniz</h2>
 
 <% group = current_user.group %>
 <% project = group&.project %>
-<% project_proposal = group&.project_proposals&.find_by(status: "accepted") %>
 
-<% if project.present? || project_proposal.present? %>
+<% if project.present?  %>
   <% display_data = {
-    title: project&.title || project_proposal&.title,
-    advisor: project&.advisor&.full_name || project_proposal&.advisor&.full_name || "Danışman atanmamış",
+    title: project&.title,
+    advisor: project&.advisor&.full_name,
     group_name: group.name,
     students: group.students,
-    description: project&.description || project_proposal&.description,
-    status: project.present? ? (project.published? ? "Onaylandı" : "Onay Bekliyor") : "Kabul Edildi",
-    status_class: project.present? ? (project.published? ? "text-success" : "text-warning") : "text-success"
+    description: project&.description,
+    status:  "Kabul Edildi",
+    status_class: "text-success"
   } %>
 
   <div class="card shadow-sm">
@@ -36,7 +46,7 @@
             <td>
               <ul class="mb-0">
                 <% display_data[:students].each do |user| %>
-                  <li><%= "#{user.first_name} #{user.last_name} - #{user.student_number}" %></li>
+                  <li><%= "#{user.full_name} - #{user.student_number}" %></li>
                 <% end %>
               </ul>
             </td>
@@ -50,16 +60,8 @@
     </div>
   </div>
 
-  <%# Ek olarak: Reddedilmemiş başka bir proje önerisi varsa durumu göster %>
-  <% other_proposal = group.project_proposals.where.not(status: "rejected").where.not(id: project_proposal&.id).first %>
-  <% if other_proposal.present? %>
-    <div class="alert alert-warning mt-3">
-      Mevcut bir başka proje teklifiniz var. Durumu: <strong><%= other_proposal.status.capitalize %></strong>
-    </div>
-  <% end %>
-
 <% else %>
   <div class="alert alert-info">
-    Henüz bir projeye atanmadınız veya proje teklifiniz onaylanmadı.
+    Henüz bir projeye atanmadınız.
   </div>
 <% end %>

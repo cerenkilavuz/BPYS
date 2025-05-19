@@ -40,6 +40,9 @@ class User < ApplicationRecord
     full_name.split.map { |name| name[0] }.join.upcase
   end
   
+  def must_change_password?
+    role == "advisor" && must_change_password
+  end
   private
 
   def email_must_be_allowed_student

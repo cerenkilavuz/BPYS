@@ -1,0 +1,45 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+          <h3 class="mb-0">Yeni Şifre Belirle</h3>
+        </div>
+
+        <div class="card-body">
+          <%= form_for(current_user, url: advisor_password_path, method: :put) do |f| %>
+            <% if current_user.errors.any? %>
+              <div class="alert alert-danger">
+                <h5><%= pluralize(current_user.errors.count, "hata") %> oluştu:</h5>
+                <ul class="mb-0">
+                  <% current_user.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="mb-3">
+              <%= f.label :current_password, "Geçerli Şifre", class: "form-label" %>
+              <%= f.password_field :current_password, class: "form-control", autocomplete: "current-password", required: true %>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :password, "Yeni Şifre", class: "form-label" %>
+              <%= f.password_field :password, class: "form-control", autocomplete: "new-password", required: true %>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :password_confirmation, "Yeni Şifre (Tekrar)", class: "form-label" %>
+              <%= f.password_field :password_confirmation, class: "form-control", autocomplete: "new-password", required: true %>
+            </div>
+
+            <div class="d-grid">
+              <%= f.submit "Şifreyi Güncelle", class: "btn btn-dark" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

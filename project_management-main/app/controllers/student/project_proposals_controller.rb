@@ -14,7 +14,7 @@ class Student::ProjectProposalsController < ApplicationController
       @project_proposal.group = @group
   
       if @project_proposal.save
-        redirect_to student_dashboard_path, notice: 'Proje teklifi başarıyla gönderildi.'
+        redirect_to proposal_student_projects_path, notice: 'Proje teklifi başarıyla gönderildi.'
       else
         @advisors = User.where(role: advisor)
         render :new, status: :unprocessable_entity

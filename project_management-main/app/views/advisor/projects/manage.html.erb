@@ -15,6 +15,7 @@
           <tr>
             <th>Proje Başlığı</th>
             <th>Açıklama</th>
+            <th>Kontenjan</th>
             <th class="text-center" style="width: 150px;">İşlemler</th>
           </tr>
         </thead>
@@ -23,6 +24,7 @@
             <tr>
               <td class="fw-semibold"><%= project.title %></td>
               <td><%= project.description.truncate(100) %></td>
+              <td class="fw-semibold"><%= project.quota %></td>
               <td class="text-center">
                 <%= link_to "Düzenle", edit_advisor_project_path(project), class: "btn btn-sm btn-outline-primary me-2", title: "Düzenle" %>
                 <%= link_to "Sil", advisor_project_path(project), method: :delete, data: { turbo_method: :delete, confirm: "Bu projeyi silmek istediğinize emin misiniz?" }, class: "btn btn-sm btn-outline-danger", title: "Sil" %>

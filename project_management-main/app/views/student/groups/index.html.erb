@@ -1,42 +1,76 @@
-<h2>Grup Yönetimi</h2>
 <% deadline = SystemSetting.find_by(key: 'group_creation_deadline')&.value_as_date %>
-<% if deadline.present? %>
-  <p><strong>Son grup oluşturma tarihi:</strong> <%= deadline.strftime("%d.%m.%Y") %></p>
-<% end %>
-
-<% if @group.present? %>
-  <div class="mb-4">
-    <p><strong>Grup Adı:</strong> <%= @group.name %></p>
+<% if deadline.present? && Date.today > deadline %>
+  <div class="alert alert-danger">
+    Grup oluşturma süresi sona ermiştir. Artık grup oluşturamaz veya silemezsiniz.
   </div>
+  <% if @group.present? %>
+      <div class="mb-4">
+        <p><strong>Grup Adı:</strong> <%= @group.name %></p>
+      </div>
 
-  <table class="table table-bordered table-striped">
-    <thead class="table-dark">
-      <tr>
-        <th>Üye Adı Soyadı</th>
-        <th>Öğrenci Numarası</th>
-        <th>Rol</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @group.students.each do |student| %>
-        <tr>
-          <td><%= "#{student.first_name} #{student.last_name}" %></td>
-          <td><%= "#{student.student_number}" %></td>
-          <td>
-            <%= student == @group.leader ? "Lider" : "Üye" %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-
-  <% if current_user.id == @group.leader_id %>
-    <%= button_to "Grubu Sil", student_group_path(@group), method: :delete, class: "btn btn-danger mt-3", data: { turbo_method: :delete } %>
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>Üye Adı Soyadı</th>
+            <th>Öğrenci Numarası</th>
+            <th>Rol</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @group.students.each do |student| %>
+            <tr>
+              <td><%= "#{student.first_name} #{student.last_name}" %></td>
+              <td><%= "#{student.student_number}" %></td>
+              <td>
+                <%= student == @group.leader ? "Lider" : "Üye" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
   <% else %>
-    <%= button_tag "Grubu Sil", class: "btn btn-danger mt-3", disabled: true, title: "Sadece grup lideri grubu silebilir" %>
   <% end %>
-
 <% else %>
-  <p>Henüz bir grubunuz yok.</p>
-  <%= link_to "Yeni Grup Oluştur", new_student_group_path, class: "btn btn-success" %>
+    <h2>Grup Yönetimi</h2>
+    <% deadline = SystemSetting.find_by(key: 'group_creation_deadline')&.value_as_date %>
+    <% if deadline.present? %>
+      <p><strong>Son grup oluşturma tarihi:</strong> <%= deadline.strftime("%d.%m.%Y") %></p>
+    <% end %>
+
+    <% if @group.present? %>
+      <div class="mb-4">
+        <p><strong>Grup Adı:</strong> <%= @group.name %></p>
+      </div>
+
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>Üye Adı Soyadı</th>
+            <th>Öğrenci Numarası</th>
+            <th>Rol</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @group.students.each do |student| %>
+            <tr>
+              <td><%= "#{student.first_name} #{student.last_name}" %></td>
+              <td><%= "#{student.student_number}" %></td>
+              <td>
+                <%= student == @group.leader ? "Lider" : "Üye" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <% if current_user.id == @group.leader_id %>
+        <%= button_to "Grubu Sil", student_group_path(@group), method: :delete, class: "btn btn-outline-danger mt-3", data: { turbo_method: :delete } %>
+      <% else %>
+        <%= button_tag "Grubu Sil", class: "btn btn-outline-danger mt-3", disabled: true, title: "Sadece grup lideri grubu silebilir" %>
+      <% end %>
+
+    <% else %>
+      <p>Henüz bir grubunuz yok.</p>
+      <%= link_to "Yeni Grup Oluştur", new_student_group_path, class: "btn btn-outline-success" %>
+    <% end %>
 <% end %>

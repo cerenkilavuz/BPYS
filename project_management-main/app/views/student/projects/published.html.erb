@@ -1,61 +1,115 @@
-<h2 class="mb-4">Yayımlanan Projeler</h2>
+<% deadline = SystemSetting.find_by(key: 'project_selection_deadline')&.value_as_date %>
+<% if deadline.present? && Date.today > deadline %>
+  <div class="alert alert-danger">
+    Proje seçme süresi sona ermiştir. Artık proje başvurusunda bulunamazsınız.
+  </div>
+<% else %>   
+  <h3 class="mb-4">Yayımlanan Projeler</h3>
 
-<table class="table table-bordered table-hover">
-  <thead class="thead-dark">
-    <tr>
-      <th>Danışman</th>
-      <th>Proje Adı</th>
-      <th>Konu</th>
-      <th>Başvuru Sayısı / Kontenjan</th>
-      <th>Başvuru</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @projects.group_by(&:advisor).each do |advisor, projects| %>
-      <% advisor_name = "#{advisor&.first_name} #{advisor&.last_name} "|| "Bilinmiyor" %>
-
-      <% group = current_user.group %>
-
-      <%# Grup varsa başvuru durumu kontrol edilir %>
-      <% if group.present? %>
-        <% leader_request = ProjectRequest.find_by(group_id: group.id, status: [:pending, :accepted]) %>
-        <% proposal_exists = group.project_proposals.where(status: [:pending, :accepted]).exists? %>
-        <% disable_buttons = leader_request.present? || proposal_exists %>
-        <% is_leader = group.leader_id == current_user.id %>
-      <% else %>
-        <% disable_buttons = true %>
-        <% is_leader = false %>
-      <% end %>
-
-      <% projects.each_with_index do |project, index| %>
-        <% active_request_count = project.project_requests.where(status: [:pending, :accepted]).count %>
-
+  <% if @projects.empty? %>
+  <div class="alert alert-info">
+      Yayımlanan bir proje bulunmamaktadır.
+    </div>
+  <% else %>
+    <table class="table table-bordered table-hover">
+      <thead class="thead-dark">
         <tr>
-          <% if index == 0 %>
-            <td rowspan="<%= projects.size %>" class="align-middle"><%= advisor_name %></td>
-          <% end %>
-          <td><%= project.title %></td>
-          <td><%= project.description.truncate(80) %></td>
-          <td><%= "#{active_request_count} / #{project.quota || '∞'}" %></td>
-          <td>
-            <% if group.nil? %>
-              <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Başvuru yapabilmek için önce bir grup oluşturmalısınız" %>
-            <% elsif project.quota.present? && active_request_count >= project.quota %>
-              <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Bu proje için kontenjan doldu" %>
-            <% elsif disable_buttons %>
-              <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Grubunuz zaten bir başvuru yaptı veya teklif gönderdi" %>
-            <% elsif !is_leader %>
-              <%= button_tag "Başvur", class: "btn btn-sm btn-secondary", disabled: true, title: "Sadece grup lideri başvurabilir" %>
-            <% else %>
-              <%= link_to "Başvur", new_student_project_project_request_path(project), class: "btn btn-sm btn-primary" %>
-            <% end %>
-          </td>
+          <th>Danışman</th>
+          <th>Proje Adı</th>
+          <th>Konu</th>
+          <th>Başvuru Sayısı / Kontenjan</th>
+          <th>Başvuru</th>
         </tr>
-      <% end %>
-    <% end %>
-  </tbody>
-</table>
+      </thead>
+      <tbody>
+        <% @projects.group_by(&:advisor).each do |advisor, projects| %>
+          <% advisor_name = "#{advisor&.first_name} #{advisor&.last_name}" || "Bilinmiyor" %>
 
+          <% group = current_user.group %>
+
+          <% if group.present? %>
+            <% leader_request = ProjectRequest.find_by(group_id: group.id, status: [:pending]) %>
+            <% proposal_exists = group.project_proposals.where(status: [:pending]).exists? %>
+            <% assigned_to_project = group.project_id.present? %>
+
+            <% disable_buttons = leader_request.present? || proposal_exists || assigned_to_project %>
+            <% is_leader = group.leader_id == current_user.id %>
+          <% else %>
+            <% disable_buttons = true %>
+            <% is_leader = false %>
+          <% end %>
+
+          <% projects.each_with_index do |project, index| %>
+            <tr>
+              <% if index == 0 %>
+                <td rowspan="<%= projects.size %>" class="align-middle"><%= advisor_name %></td>
+              <% end %>
+              <td><%= project.title %></td>
+              <td><%= project.description.truncate(80) %></td>
+              <td><%= "#{project.current_application_count} / #{project.quota || '∞'}" %></td>
+              <td>
+                <% if group.nil? %>
+                  <%= button_tag "Başvur", class: "btn btn-sm btn-outline-secondary", disabled: true, title: "Başvuru yapabilmek için önce bir grup oluşturmalısınız" %>
+                <% elsif project.full? %>
+                  <%= button_tag "Başvur", class: "btn btn-sm btn-outline-secondary", disabled: true, title: "Bu proje için kontenjan doldu" %>            
+                <% elsif disable_buttons %>
+                  <%= button_tag "Başvur", class: "btn btn-sm btn-outline-secondary", disabled: true, title: "Grubunuz zaten bir başvuru yaptı veya teklif gönderdi" %>
+                <% elsif !is_leader %>
+                  <%= button_tag "Başvur", class: "btn btn-sm btn-outline-secondary", disabled: true, title: "Sadece grup lideri başvurabilir" %>
+                <% else %>
+                  <%= link_to "Başvur", new_student_project_project_request_path(project), class: "btn btn-sm btn-outline-primary" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+  <h3 class="mt-5 mb-3">Başvurularım</h3>
+
+  <% if current_user.group.nil? || current_user.group.project_requests.empty? %>
+    <div class="alert alert-info">
+      Mevcut bir başvurunuz bulunmamaktadır.
+    </div>
+  <% else %>
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>Proje Adı</th>
+          <th>Danışman</th>
+          <th>Açıklama</th>
+          <th>Durum</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% current_user.group.project_requests.includes(:project).each do |request| %>
+          <% project = request.project %>
+          <% advisor = project.advisor %>
+          <tr>
+            <td><%= project.title %></td>
+            <td><%= "#{advisor&.first_name} #{advisor&.last_name}" || "Bilinmiyor" %></td>
+            <td><%= project.description.truncate(80) %></td>
+            <td>
+              <% case request.status %>
+              <% when "pending" %>
+                <span class="fw-bold text-warning">Beklemede</span>
+              <% when "accepted" %>
+                <span class="fw-bold text-success">Kabul Edildi</span>
+              <% when "rejected" %>
+                <span class="fw-bold text-danger">Reddedildi</span>
+              <% else %>
+                <span class="fw-bold text-secondary"><%= request.status.capitalize %></span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+<% end %>  
 <div class="container position-relative">
   <%= link_to "Geri", student_projects_path, class: "btn btn-sm btn-outline-secondary position-absolute", style: "top: 1rem; right: 1rem; z-index: 10;" %>
 </div>

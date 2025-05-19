@@ -10,6 +10,8 @@ class Group < ApplicationRecord
   validate :within_project_selection_deadline, on: :update
 
 def within_group_creation_deadline
+  return if Current.user&.admin?
+
   deadline_str = SystemSetting.find_by(key: 'group_creation_deadline')
   deadline = deadline_str&.value_as_date
   if deadline.present? && Date.today > deadline
@@ -19,6 +21,8 @@ end
 
 
 def within_project_selection_deadline
+  return if Current.user&.admin?
+
   if project_id_changed? && project_id.present? # proje atanıyorsa
     deadline_str = SystemSetting.find_by(key: 'project_selection_deadline')
     deadline = deadline_str&.value_as_date

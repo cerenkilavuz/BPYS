@@ -16,5 +16,19 @@ class Student::RegistrationsController < Devise::RegistrationsController
   
       super
     end
+
+    def sign_up(resource_name, resource)
+      # Hiçbir işlem yapma => otomatik oturum açılmaz
+    end
+  
+    def after_sign_up_path_for(resource)
+      flash[:notice] = "Kayıt başarılı! Lütfen giriş yapınız."
+      new_user_session_path 
+    end
+  
+    def after_inactive_sign_up_path_for(resource)
+      flash[:notice] = "Kayıt başarılı! Lütfen giriş yapınız."
+      new_user_session_path # eğer :confirmable varsa, yine giriş sayfasına yönlendir
+    end
   end
   

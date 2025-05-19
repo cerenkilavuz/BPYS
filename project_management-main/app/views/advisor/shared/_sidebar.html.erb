@@ -1,10 +1,12 @@
-<div class="bg-light border-end vh-100 p-3" style="width: 220px;">
-    <h5 class="text-center"><br>
-    Hoş geldiniz, <%= current_user.full_name %>
-    </h5>
-  <ul class="nav flex-column mt-4">
+<div class="d-flex flex-column bg-white border-end shadow-sm vh-100 p-3" style="width: 220px; min-width: 220px; max-width: 220px;">
+  <div class="text-center mb-4">
+    <h5 class="fw-semibold mb-0">Danışman Paneli</h5>
+    <small class="text-muted">Hoş geldiniz, <%= "#{current_user.full_name}"%></small>
+  </div>
+  <hr>
+  <ul class="nav flex-column gap-1">
     <li class="nav-item">
-      <%= link_to "Anasayfa", advisor_dashboard_path, class: "nav-link" %>
+      <%= link_to "Anasayfa", advisor_dashboard_path, class: "nav-link text-dark" %>
     </li>
     <li class="nav-item">
       <%= link_to "Projelerim", advisor_projects_path, class: "nav-link text-dark" %>
@@ -12,5 +14,9 @@
     <li class="nav-item">
       <%= link_to "Gruplarım", advisor_groups_path, class: "nav-link text-dark" %>
     </li>
+    <li class="nav-item">
+      <%= link_to "Profil Ayarları", edit_user_registration_path, class: "nav-link text-dark" %>
+    </li>
   </ul>
 </div>
+

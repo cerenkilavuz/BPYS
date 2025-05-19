@@ -21,58 +21,76 @@ module Admin
   
       def assign_random_projects
         deadline = SystemSetting.find_by(key: 'project_selection_deadline')&.value_as_date
-        return redirect_to edit_admin_project_setting_path, alert: "Proje seçim tarihi belirlenmemiş." unless deadline
+
+        unless deadline
+          return redirect_to edit_admin_project_setting_path, alert: "Proje seçim tarihi belirlenmemiş."
+        end
+        
+        if Date.today <= deadline
+          return redirect_to edit_admin_project_setting_path, alert: "Proje seçim süreci henüz tamamlanmadı. Rastgele atama yapılamaz."
+        end
+        
+        unassigned_groups = Group.where(project_id: nil)
+        
+        if unassigned_groups.empty?
+          return redirect_to edit_admin_project_setting_path, alert: "Proje seçimi yapmamış grup bulunmamaktadır."
+        end
+
+        students_without_group = User.where(role: 'student')
+                             .left_joins(:group_membership)
+                             .where(group_membership: { id: nil })
+
+        if students_without_group.exists?
+          student_emails = students_without_group.pluck(:email).join(", ")
+          flash[:alert] = "Grubu olmayan öğrenciler mevcut: #{student_emails}. Önce tüm öğrencileri gruplandırın."
+          redirect_back(fallback_location: root_path)
+          return
+        end
+
       
-        groups = groups_without_project(deadline)
-        return redirect_to edit_admin_project_setting_path, alert: "Proje seçimi yapmamış grup bulunmamaktadır." if groups.empty?
+        advisors = User.where(role: :advisor)
       
-        # Danışman bazlı: { advisor_id => { projects: [[project, remaining]], group_count: n } }
-        advisor_data = {}
+        unassigned_groups.each do |group|
+          # Danışmanların grup sayıları: danışmanın projelerine atanmış grup sayısı toplamı
+          advisor_group_counts = advisors.index_with do |advisor|
+            Project.where(advisor_id: advisor.id).joins(:groups).count
+          end
       
-        Project.includes(:groups, :advisor).each do |project|
-          advisor = project.advisor
-          next unless advisor && advisor.role == "advisor"
-          
-          max_quota = project.quota || 0
-          assigned = project.groups.count
-          remaining = max_quota - assigned
-          next if remaining <= 0
+          min_group_count = advisor_group_counts.values.min
+          least_loaded_advisors = advisor_group_counts.select { |_, count| count == min_group_count }.keys
       
-          advisor_data[advisor.id] ||= { projects: [], group_count: 0 }
-          advisor_data[advisor.id][:projects] << [project, remaining]
-          advisor_data[advisor.id][:group_count] += assigned
+          selected_advisor = least_loaded_advisors.sample
+          next unless selected_advisor
+      
+          # Danışmanın projeleri
+          advisor_projects = Project.where(advisor_id: selected_advisor.id)
+      
+          # Boş kontenjanı olan projeler
+          available_projects = advisor_projects.select do |project|
+            (project.quota - project.groups.count) > 0
+          end
+      
+          next if available_projects.empty?
+      
+          # En az gruba sahip projeler
+          project_group_counts = available_projects.index_with { |project| project.groups.count }
+          min_project_group_count = project_group_counts.values.min
+          least_used_projects = project_group_counts.select { |_, count| count == min_project_group_count }.keys
+      
+          selected_project = least_used_projects.sample
+      
+          group.update(project: selected_project)
         end
       
-        return redirect_to edit_admin_project_setting_path, alert: "Hiçbir projede boş kontenjan bulunmamaktadır." if advisor_data.empty?
-      
-        # Grupları sırayla ata
-        groups.each do |group|
-          # En az gruba sahip danışmanı bul
-          selected_advisor_id, advisor_info = advisor_data.min_by { |_, data| data[:group_count] }
-      
-          next unless advisor_info
-      
-          # Danışmanın boş kontenjanı olan bir projesini bul
-          project_with_slot = advisor_info[:projects].find { |_, remaining| remaining > 0 }
-      
-          next unless project_with_slot
-      
-          project, remaining = project_with_slot
-      
-          group.update(project: project)
-          project_with_slot[1] -= 1
-          advisor_info[:group_count] += 1
-      
-          # Eğer bu projede kontenjan biterse, listeden çıkarmaya gerek yok çünkü find ile sadece kalanlara bakılıyor
-        end
-      
-        redirect_to edit_admin_project_setting_path, notice: "Projeler danışmanlara dengeli şekilde atandı."
+        redirect_to admin_project_setting_path, notice: "Projeler rastgele atandı."
       end
+      
+      
       
       
       def rename_groups
         if Group.where(project_id: nil).exists?
-          redirect_to admin_projects_path, alert: "Projesiz grup kaldığı için işlem yapılamadı."
+          redirect_to admin_project_setting_path, alert: "Projesiz grup kaldığı için işlem yapılamadı."
           return
         end
       
@@ -90,8 +108,44 @@ module Admin
       
         redirect_to admin_project_setting_path, notice: "Gruplar başarıyla yeniden adlandırıldı."
       end
+          
+      def export_groups_to_csv
+        deadline = SystemSetting.find_by(key: 'project_selection_deadline')&.value_as_date
+        return redirect_to edit_admin_project_setting_path, alert: "Son tarih belirlenmemiş." unless deadline
       
-  
+        groups = Group.includes(:students, project: :advisor)
+                      .where('groups.created_at <= ?', deadline.end_of_day)
+                      .select { |g| g.project.present? }
+      
+        # Danışmana göre gruplandır
+        groups_by_advisor = groups.group_by { |g| g.project.advisor }
+      
+        csv_data = CSV.generate(headers: false) do |csv|
+            csv << ["Bitirme Projesi Gruplar-Danışmanlar"]
+          groups_by_advisor.each do |advisor, advisor_groups|
+            csv << ["Danışman: #{advisor&.full_name || 'Bilinmiyor'}"]
+            csv << ["Grup Adı", "Grup Üyeleri", "Proje Başlığı"]
+      
+            advisor_groups.each do |group|
+              student_list = group.students.each_with_index.map do |s, i|
+                "#{i + 1}) #{s.full_name} - #{s.student_number}"
+              end.join("\n")     
+              
+              csv << [group.name, student_list, group.project.title]
+            end
+      
+            csv << [] # Boşluk bırak danışmanlar arasında
+          end
+        end
+      
+        bom = "\uFEFF" # Türkçe karakter desteği için BOM
+        send_data bom + csv_data,
+                  filename: "proje_secimi_yapan_gruplar_#{Date.today}.csv",
+                  type: "text/csv; charset=utf-8"
+      end
+      
+    
+    
       private
   
       def system_setting_params
@@ -100,12 +154,10 @@ module Admin
   
       def groups_with_projects(deadline)
         Group.where.not(project_id: nil)
-             .where('created_at <= ?', deadline.end_of_day)
       end
       
       def groups_without_project(deadline)
         Group.where(project_id: nil)
-             .where('created_at <= ?', deadline.end_of_day)
       end
           
   

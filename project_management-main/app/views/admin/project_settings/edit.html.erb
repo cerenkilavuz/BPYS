@@ -1,20 +1,20 @@
 <div class="container my-5">
-
-  <h2 class="mb-4">Proje Seçim Ayarları</h2>
-
   <div class="card mb-4">
+    <div class="card-header">
+      <h6 class="mb-0">📅 Proje Seçim Son Tarihi</h6>
+    </div>
     <div class="card-body">
       <%= form_with model: @deadline, url: admin_project_setting_path, method: :patch, local: true do |form| %>
         <div class="mb-3">
-          <%= form.label :value, "Son Proje Seçim Tarihi", class: "form-label" %>
+          <%= form.label :value, "Son Tarihi", class: "form-label" %>
           <%= form.date_field :value, value: @deadline.value, class: "form-control" %>
         </div>
-        <%= form.submit "Güncelle", class: "btn btn-success" %>
+        <%= form.submit "Güncelle", class: "btn btn-outline-success" %>
       <% end %>
     </div>
   </div>
 
-  <h3 class="mb-3">Proje Seçimi Yapmış Gruplar</h3>
+  <h4 class="mt-5">Proje Seçimi Yapmış Gruplar</h4>
   <% if @groups_with_projects.any? %>
     <div class="table-responsive mb-5">
       <table class="table table-bordered table-striped align-middle">
@@ -51,13 +51,24 @@
           <% end %>
         </tbody>
       </table>
-      <%= button_to "Grupları Danışman Kodlarıyla Yeniden Adlandır", rename_groups_admin_project_setting_path, method: :patch, class: "btn btn-outline-primary mt-4", data: { confirm: "Tüm grup adları yeniden adlandırılacak. Emin misiniz?" } %>
+      <div class="d-flex gap-2 mt-4">
+        <%= button_to "Grupları Danışman Kodlarıyla Yeniden Adlandır",
+                      rename_groups_admin_project_setting_path,
+                      method: :patch,
+                      class: "btn btn-outline-primary",
+                      data: { confirm: "Tüm grup adları yeniden adlandırılacak. Emin misiniz?" } %>
+
+        <%= link_to "CSV Dışa Aktar",
+                    export_groups_to_csv_admin_project_setting_path,
+                    class: "btn btn-outline-success" %>
+      </div>
+
     </div>
   <% else %>
     <div class="alert alert-info">Proje seçimi yapmış grup bulunmamaktadır.</div>
   <% end %>
 
-  <h3 class="mb-3">Proje Seçimi Yapmamış Gruplar</h3>
+  <h4 class="mt-5">Proje Seçimi Yapmamış Gruplar</h4>
   <% if @groups_without_project.any? %>
     <div class="table-responsive mb-4">
       <table class="table table-bordered table-hover align-middle">
@@ -84,7 +95,7 @@
           <% end %>
         </tbody>
       </table>
-      <%= button_to 'Rastgele Proje Ata', assign_random_projects_admin_project_setting_path, method: :post, class: 'btn btn-success' %>
+      <%= button_to 'Rastgele Proje Ata', assign_random_projects_admin_project_setting_path, method: :post, class: 'btn btn-outline-success' %>
     </div>
   <% else %>
     <div class="alert alert-info">Proje seçimi yapmamış grup bulunmamaktadır.</div>

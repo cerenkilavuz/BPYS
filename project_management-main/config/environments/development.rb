@@ -77,4 +77,22 @@ Rails.application.configure do
   #mail gönderme hatalarını önleme
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
 
+  # config/environments/development.rb (ya da production.rb)
+
+
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address:              "smtp.gmail.com",
+      port:                 587,
+      domain:               "gmail.com", # veya kendi domainin olabilir
+      user_name:            ENV["SMTP_USERNAME"],  # Gmail kullanıcı adın (örn. mail@stu.omu.edu.tr)
+      password:             ENV["SMTP_APP_PASSWORD"], # Gmail uygulama şifren
+      authentication:       "plain",
+      enable_starttls_auto: true
+    }
+
+    config.action_mailer.default_options = { from: ENV['SMTP_USERNAME'] }
+    config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+
+
 end

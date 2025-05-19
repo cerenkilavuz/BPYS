@@ -1,10 +1,23 @@
-<h2>Projeye Başvur</h2>
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-dark text-white">
+      <h4 class="mb-0">Projeye Başvur</h4>
+    </div>
+    <div class="card-body">
+      <p><strong>Proje Başlığı:</strong> <%= @project.title %></p>
+      <p><strong>Proje Açıklaması:</strong> <%= @project.description %></p>
+      <p><strong>Danışman Adı:</strong> <%= @project.advisor&.full_name %></p>
 
-<p>Proje: <%= @project.title %></p>
+      <%= form_with model: @request, url: student_project_project_requests_path(@project), method: :post, local: true do |f| %>
+        <div class="alert alert-info">
+          Başvuruyu onaylamak için aşağıdaki butona tıklayınız.
+        </div>
 
-<%= form_with model: @request, url: student_project_project_requests_path(@project), method: :post do |f| %>
-  <p>Başvuruyu onaylamak için butona basınız.</p>
-  <%= f.submit "Başvur", class: "btn btn-success" %>
-<% end %>
-
-<%= link_to "İptal", student_projects_path, class: "btn btn-secondary" %>
+        <div class="d-flex gap-2">
+          <%= f.submit "Başvur", class: "btn btn-success" %>
+          <%= link_to "İptal", student_projects_path, class: "btn btn-secondary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

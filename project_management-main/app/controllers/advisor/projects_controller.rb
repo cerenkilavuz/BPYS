@@ -29,7 +29,7 @@ module Advisor
       @project.advisor_id = current_user.id  
       @project.published = true 
       if @project.save
-        redirect_to advisor_projects_path, notice: "Proje başarıyla eklendi."
+        redirect_to advisor_projects_manage_path, notice: "Proje başarıyla eklendi."
       else
         render :new
       end

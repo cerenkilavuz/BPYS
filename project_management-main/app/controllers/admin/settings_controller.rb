@@ -38,26 +38,6 @@ module Admin
     end  
       
 
-    def export_unassigned_students
-        @deadline = SystemSetting.find_by(key: 'group_creation_deadline')
-        @students_without_group = unassigned_students
-      
-        respond_to do |format|
-          format.csv do
-            csv_data = CSV.generate(headers: true) do |csv|
-              csv << ["Email", "Kayıt Tarihi"]
-              @students_without_group.each do |student|
-                csv << [student.email, student.created_at.strftime("%d.%m.%Y")]
-              end
-            end
-      
-            send_data csv_data,
-                      filename: "grup_olusturmamis_ogrenciler_#{Date.today}.csv",
-                      type: 'text/csv; charset=utf-8'
-          end
-        end
-    end
-
     def email_unassigned_students
         @students_without_group = unassigned_students
         @students_without_group.each do |student|
@@ -67,44 +47,74 @@ module Admin
     end
     
     def random_group_students
-        ungrouped_students = unassigned_students.shuffle
-        groups = []
-      
-        while ungrouped_students.size >= 3
-          if ungrouped_students.size == 4
-            groups << ungrouped_students.pop(2)
-            groups << ungrouped_students.pop(2)
+      deadline = SystemSetting.find_by(key: 'group_creation_deadline')&.value_as_date
+    
+      unless deadline
+        return redirect_to edit_admin_setting_path, alert: "Son grup oluşturma tarihi belirlenmemiş."
+      end
+    
+      if Date.today <= deadline
+        return redirect_to edit_admin_setting_path, alert: "Grup oluşturma süreci henüz tamamlanmadı. Rastgele gruplandırma yapılamaz."
+      end
+    
+      group_quota = SystemSetting.find_by(key: 'group_quota')&.value.to_i
+      unless group_quota > 0
+        return redirect_to edit_admin_setting_path, alert: "Geçerli bir grup kontenjanı (group_quota) belirlenmemiş."
+      end
+    
+      ungrouped_students = unassigned_students.shuffle
+      total = ungrouped_students.size
+      groups = []
+    
+      while ungrouped_students.size >= group_quota
+        # Eğer kalan öğrenci sayısı (grup_quota + 1) ise => örn: 4 öğrenci var ama quota 3, 3+1 olmasın diye 2+2 yap
+        if ungrouped_students.size == group_quota + 1
+          if (group_quota + 1).odd?
+            half = (group_quota + 2) / 2
+            groups << ungrouped_students.pop(half)
+            groups << ungrouped_students.pop(half)
           else
-            groups << ungrouped_students.pop(3)
+            half = (group_quota + 1) / 2
+            groups << ungrouped_students.pop(half)
+            groups << ungrouped_students.pop(half)
           end
+        else
+          groups << ungrouped_students.pop(group_quota)
         end
-      
-        groups << ungrouped_students.pop(2) if ungrouped_students.size == 2
-      
-        groups.each do |members|
-          leader = members.first
-          group = Group.create!(name: "Grup #{SecureRandom.hex(3).upcase}", leader: leader)
-          members.each do |student|
-            GroupMembership.create!(group: group, student: student)
-          end
+      end
+    
+      # Geriye kalanlar 2 ise tek grup yapılabilir
+      groups << ungrouped_students.pop(2) if ungrouped_students.size == 2
+    
+      # Eğer hâlâ 1 öğrenci kalmışsa => onu var olan gruplardan en küçük olana ekle
+      if ungrouped_students.size == 1
+        remaining = ungrouped_students.pop
+        groups << [remaining]
+      end
+    
+      # Grupları DB'ye kaydet
+      groups.each do |members|
+        leader = members.first
+        group = Group.create!(name: "Grup #{SecureRandom.hex(3).upcase}", leader: leader)
+        members.each do |student|
+          GroupMembership.create!(group: group, student: student)
         end
-      
-        redirect_to edit_admin_setting_path, notice: "Grup oluşturmamış öğrenciler başarıyla rastgele gruplandırıldı."
-      rescue => e
-        redirect_to edit_admin_setting_path, alert: "Bir hata oluştu: #{e.message}"
+      end
+    
+      redirect_to edit_admin_setting_path, notice: "Grup oluşturmamış öğrenciler başarıyla rastgele gruplandırıldı."
+    rescue => e
+      redirect_to edit_admin_setting_path, alert: "Bir hata oluştu: #{e.message}"
     end
+    
       
 
     private
     def unassigned_students
-        deadline = SystemSetting.find_by(key: 'group_creation_deadline')&.value
-        return [] unless deadline.present?
-    
-        User.students
-            .left_outer_joins(:group_membership)
-            .where(group_memberships: { id: nil })
-            .where("users.created_at <= ?", deadline.to_date.end_of_day)
+      User.students
+          .left_outer_joins(:group_membership)
+          .where(group_memberships: { id: nil })
     end
+    
 
   
     def require_admin

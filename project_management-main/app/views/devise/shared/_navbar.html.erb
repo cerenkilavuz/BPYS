@@ -10,11 +10,6 @@
       <ul class="navbar-nav ms-auto">
 
         <% if user_signed_in? %>
-          <%# Ortak: Bildirimler %>
-          <li class="nav-item">
-            <%= link_to "Bildirimler", "#" , class: "nav-link" %>
-          </li>
-
           <li class="nav-item">
             <%= link_to "Çıkış Yap", destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "nav-link text-danger" %>
           </li>

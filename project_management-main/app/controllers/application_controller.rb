@@ -1,7 +1,9 @@
 
 class ApplicationController < ActionController::Base
     before_action :authenticate_user! 
+    before_action :configure_permitted_parameters, if: :devise_controller?
     before_action :check_student_login
+    before_action :set_current_user
     
       def after_sign_in_path_for(resource)
         case resource.role
@@ -15,6 +17,10 @@ class ApplicationController < ActionController::Base
           root_path
         end
       end
+
+      def configure_permitted_parameters
+        devise_parameter_sanitizer.permit(:sign_up, keys: [:role])
+      end
     
       def check_student_login
         return unless current_user&.student?
@@ -25,9 +31,9 @@ class ApplicationController < ActionController::Base
         end
       end
     
-  
+ 
     private
-  
+
     def only_admins
       redirect_to root_path, alert: "Bu sayfaya erişiminiz yok!" unless current_user&.admin?
     end
@@ -38,6 +44,10 @@ class ApplicationController < ActionController::Base
   
     def only_students
       redirect_to root_path, alert: "Bu sayfaya erişiminiz yok!" unless current_user&.student?
+    end
+
+    def set_current_user
+      Current.user = current_user
     end
 end
 

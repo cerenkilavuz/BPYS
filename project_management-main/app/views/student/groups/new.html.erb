@@ -2,30 +2,27 @@
 
 <%= form_with model: @group, url: student_groups_path, method: :post, local: true do |f| %>
   <h4>Grup Üyeleri</h4>
-  <div id="members">
-    <!-- Grup lideri (current_user) -->
-    <div class="input-group mb-2">
-      <input type="text" class="form-control" value="<%= "#{current_user.first_name} #{current_user.last_name}" + " - " + "#{current_user.student_number}" %>" disabled>
-      <input type="hidden" name="group[member_emails][]" value="<%= current_user.email %>">
-      <span class="input-group-text bg-secondary text-white">Lider</span>
-    </div>
+  
+  <!-- Grup lideri (current_user) -->
+  <div class="input-group mb-2">
+    <input type="text" class="form-control" value="<%= "#{current_user.full_name} - #{current_user.student_number}" %>" disabled>
+    <span class="input-group-text bg-secondary text-white">Lider</span>
   </div>
 
   <div class="form-group">
     <div id="student-selects"></div>
-    <button type="button" id="add-student" class="btn btn-secondary mt-2">+ Grup Üyesi Ekle</button>
+    <button type="button" id="add-student" class="btn btn-outline-secondary mt-2">+ Grup Üyesi Ekle</button>
   </div>
 
-  <%= f.submit "Grubu Oluştur", class: "btn btn-success mt-3" %>
+  <%= f.submit "Grubu Oluştur", class: "btn btn-outline-success mt-3" %>
 <% end %>
 
 <% if (quota = SystemSetting.find_by(key: "group_quota")&.value.to_i).positive? %>
-  <div class="alert alert-info">
-    Grup lideri (siz) dahil olmak üzere toplam <strong><%= quota %></strong> kişi olabilir.
+  <div class="alert alert-info mt-3">
+    Grup lideri (siz) dahil olmak üzere en fazla <strong><%= quota %></strong> kişi olabilir.
     Bu nedenle en fazla <strong><%= quota - 1 %></strong> öğrenci ekleyebilirsiniz.
   </div>
 <% end %>
-
 
 <%= javascript_tag do %>
   document.addEventListener("turbo:load", function () {
@@ -33,7 +30,6 @@
     const container = document.getElementById("student-selects");
 
     if (!addButton || addButton.dataset.bound === "true") return;
-
     addButton.dataset.bound = "true";
 
     const quota = <%= SystemSetting.find_by(key: "group_quota")&.value.to_i || 0 %>;
@@ -71,7 +67,7 @@
       students.forEach(function (student) {
         const option = document.createElement("option");
         option.value = student.id;
-        option.text = student.name + " - " + student.stu_no + (student.has_group ? " (Zaten grupta)" : "");
+        option.text = `${student.name} - ${student.stu_no}${student.has_group ? " (Zaten grupta)" : ""}`;
         if (student.has_group) option.disabled = true;
         select.appendChild(option);
       });
@@ -94,8 +90,7 @@
     }
 
     addButton.addEventListener("click", function () {
-      const current = getCurrentStudentCount();
-      if (current >= maxSelectableStudents) {
+      if (getCurrentStudentCount() >= maxSelectableStudents) {
         alert("Kotaya ulaştınız! Daha fazla öğrenci ekleyemezsiniz.");
         addButton.disabled = true;
         return;

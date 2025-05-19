@@ -7,13 +7,13 @@ Rails.application.routes.draw do
   end
 
   devise_for :users, controllers: {
-  registrations: 'student/registrations'
+  registrations: 'users/registrations'
 }
 
   # Kullanıcı rolleri için yönlendirme
   namespace :admin do
     get "dashboard", to: "dashboard#index", as: :dashboard                        # Grupları Yönet
-    resources :advisors , only: [:new, :create]                         # Danışman Ekle (CRUD için)
+    resources :advisors , only: [:new, :create, :destroy]                         # Danışman Ekle (CRUD için)
     resource :system_setting, only: [:edit, :update] 
 
     resource :setting, only: [:edit, :update, :show] do
@@ -26,9 +26,10 @@ Rails.application.routes.draw do
     resource :project_setting, only: [:edit, :update] do
       post :assign_random_projects
       patch :rename_groups
+      get :export_groups_to_csv
     end
 
-    resources :allowed_students, only: [:new] do
+    resources :allowed_students, only: [:new, :destroy,] do
       collection do
         post :import_csv
       end
@@ -37,11 +38,12 @@ Rails.application.routes.draw do
   end
 
   namespace :advisor do
+    resource :password, only: [:edit, :update], controller: 'passwords'
     get "dashboard", to: "dashboard#index", as: :dashboard
     get 'projects', to: 'projects#dashboard'
     get 'projects/manage', to: 'projects#manage'
     get 'groups', to: 'groups#index'
-
+    
     resources :projects do
       collection do
         get :requests  # Teklifleri listeleyen sayfa için route

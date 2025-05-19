@@ -1,7 +1,7 @@
 
 class Project < ApplicationRecord
   belongs_to :advisor, class_name: 'User', foreign_key: 'advisor_id'
-  has_many :project_requests
+  has_many :project_requests, dependent: :destroy
   has_many :groups, foreign_key: :project_id, dependent: :nullify
   
   validates :title, presence: true
@@ -10,8 +10,16 @@ class Project < ApplicationRecord
 
   after_initialize :set_default_published, if: :new_record?
 
-  def quota_full?
-    quota.present? && project_requests.count >= quota
+  def current_application_count
+    accepted_group_ids = Group.where(project_id: id).pluck(:id)
+    pending_requests = project_requests.where(status: [:pending]).count
+  
+    # Toplam başvuru sayısı = istekler (bekleyen + kabul edilen) + zaten atanmış gruplar
+    pending_requests + accepted_group_ids.count
+  end
+
+  def full?
+    quota.present? && current_application_count >= quota
   end
   private
 

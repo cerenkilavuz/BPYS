@@ -21,8 +21,14 @@
   <body>
     <!-- Navbar -->
     <%= render 'devise/shared/navbar' %>
+    <% if notice %>
+      <div class="alert alert-success"><%= notice %></div>
+    <% end %>
 
-    <!-- Sidebar + Sayfa İçeriği -->
+    <% if alert %>
+      <div class="alert alert-danger"><%= alert %></div>
+    <% end %>   
+     
     <div class="d-flex">
       <%= render 'advisor/shared/sidebar' %>
 

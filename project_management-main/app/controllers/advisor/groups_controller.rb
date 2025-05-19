@@ -9,5 +9,19 @@ module Advisor
         .joins(:project)
         .where(projects: { advisor_id: current_user.id })
     end
+
+    def destroy
+      @group = Group.find(params[:id])
+    
+      # İlgili project_request varsa sil
+      project_request = ProjectRequest.find_by(group_id: @group.id, project_id: @group.project_id)
+    
+      if @group.update(project_id: nil)
+        project_request&.destroy
+        redirect_to advisor_groups_path, notice: "Grup silindi."
+      else
+        redirect_to advisor_groups_path, alert: "Grup silinirken bir hata oluştu."
+      end
+    end    
   end
 end

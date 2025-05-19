@@ -1,22 +1,25 @@
-<h2>Yeni Proje Teklifi Gönder</h2>
-
-<%= form_with model: @project_proposal, url: student_project_proposals_path, local: true do |form| %>
-  <div class="field">
-    <%= form.label :advisor_id, "Danışman" %> <br>
-    <%= form.select :advisor_id, options_from_collection_for_select(@advisors, :id, :full_name, @project_proposal.advisor_id), prompt: "Danışman Seç" %>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Yeni Proje Teklifi Gönder</h1>
+    <%= link_to "Geri", student_projects_path, class: "btn btn-outline-secondary" %>
   </div>
 
-  <div class="field">
-    <%= form.label :title, "Proje Başlığı" %>
-    <%= form.text_field :title %>
-  </div>
+  <%= form_with model: @project_proposal, url: student_project_proposals_path, local: true, class: "card p-4 shadow-sm" do |form| %>
+    <div class="mb-3">
+      <%= form.label :advisor_id, "Danışman", class: "form-label" %>
+      <%= form.select :advisor_id, options_from_collection_for_select(@advisors, :id, :full_name, @project_proposal.advisor_id), { prompt: "Danışman Seç" }, class: "form-select", required: true %>
+    </div>
 
-  <div class="field">
-    <%= form.label :description, "Proje Açıklaması" %>
-    <%= form.text_area :description %>
-  </div>
+    <div class="mb-3">
+      <%= form.label :title, "Proje Başlığı", class: "form-label" %>
+      <%= form.text_field :title, class: "form-control", required: true %>
+    </div>
 
-  <div class="actions">
-    <%= form.submit "Teklifi Gönder" %>
-  </div>
-<% end %>
+    <div class="mb-3">
+      <%= form.label :description, "Proje Açıklaması", class: "form-label" %>
+      <%= form.text_area :description, class: "form-control", rows: 5, required: true %>
+    </div>
+
+    <%= form.submit "Teklifi Gönder", class: "btn btn-outline-success" %>
+  <% end %>
+</div>

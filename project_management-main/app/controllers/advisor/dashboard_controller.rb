@@ -1,5 +1,5 @@
 module Advisor
-  class DashboardController < ApplicationController
+  class DashboardController < Advisor::BaseController
     layout "advisor"
     before_action :only_advisors
 

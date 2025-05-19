@@ -8,7 +8,7 @@ module Student
     end
 
     def published
-      @projects = Project.includes(:advisor).where(published: true) # Yayınlanan projeleri çek ve danışman bilgisiyle getir
+      @projects = Project.includes(:advisor, :project_requests, :groups).where(published: true)
     end
 
     def proposals

@@ -13,6 +13,7 @@
         <th>Proje Başlığı</th>
         <th>Grup Adı</th>
         <th>Grup Üyeleri</th>
+        <th> </th>
       </tr>
     </thead>
     <tbody>
@@ -27,9 +28,11 @@
             <td>
               <ul class="mb-0">
                 <% group.students.each do |student| %>
-                  <li><%= "#{student.first_name} #{student.last_name} - #{student.student_number}" %></li>
+                  <li><%= "#{student.full_name} - #{student.student_number}" %></li>
                 <% end %>
               </ul>
+            </td>
+            <td><%= button_to "Sil", advisor_group_path(group), method: :delete, data: { confirm: "Bu grubu projeden ayırmak istediğinize emin misiniz?" }, class: "btn btn-sm btn-outline-danger" %>
             </td>
           </tr>
         <% end %>

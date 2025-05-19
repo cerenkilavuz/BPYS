@@ -1,5 +1,8 @@
-<h2>Sistem Ayarları</h2>
-
+<div class="card mb-4">
+<div class="card-header">
+  <h4 class="mb-0">Sistem Ayarları</h4>
+</div>
+<div class="card-body">
 <%= form_with model: @system_setting, url: admin_system_setting_path, method: :put, local: true do |f| %>
   <div class="form-check form-switch mb-3">
     <%= f.check_box :students_can_login, class: "form-check-input" %>
@@ -10,7 +13,7 @@
     <%= f.check_box :students_can_register, class: "form-check-input" %>
     <%= f.label :students_can_register, "Öğrenci Kaydı", class: "form-check-label" %>
   </div>
+  
 
-  <%= f.submit "Kaydet", class: "btn btn-primary" %>
+  <%= f.submit "Kaydet", class: "btn btn-outline-primary" %>
 <% end %>
-

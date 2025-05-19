@@ -2,32 +2,23 @@
 
 <%= form_with model: @advisor, url: admin_advisors_path, local: true do |f| %>
   <div class="form-group">
-    <%= f.label :first_name %>
-    <%= f.text_field :first_name, class: "form-control" %>
+    <%= f.label :first_name, "Ad" %>
+    <%= f.text_field :first_name, class: "form-control", required: true %>
   </div>
 
   <div class="form-group">
-    <%= f.label :last_name %>
-    <%= f.text_field :last_name, class: "form-control" %>
+    <%= f.label :last_name, "Soyad" %>
+    <%= f.text_field :last_name, class: "form-control", required: true %>
   </div>
 
   <div class="form-group">
-    <%= f.label :email %>
-    <%= f.email_field :email, class: "form-control" %>
+    <%= f.label :email, "E-posta" %>
+    <%= f.email_field :email, class: "form-control", required: true %>
   </div>
 
-  <div class="form-group">
-    <%= f.label :password %>
-    <%= f.password_field :password, class: "form-control" %>
-  </div>
-
-  <div class="form-group">
-    <%= f.label :password_confirmation %>
-    <%= f.password_field :password_confirmation, class: "form-control" %>
-  </div>
-
-  <%= f.submit "Danışman Ekle", class: "btn btn-success mt-3" %>
+  <%= f.submit "Danışman Ekle", class: "btn btn-outline-success mt-3" %>
 <% end %>
+
 
 <hr class="my-5">
 
@@ -40,6 +31,7 @@
         <tr>
           <th>Ad Soyad</th>
           <th>E-posta</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -47,6 +39,9 @@
           <tr>
             <td><%= advisor.full_name %></td>
             <td><%= advisor.email %></td>
+            <td>
+              <%= button_to "Sil", admin_advisor_path(advisor), method: :delete, data: { confirm: "Danışmanı ve bağlı tüm gruplar ile projeleri silmek istediğinize emin misiniz?" }, class: "btn btn-outline-danger btn-sm" %>
+            </td>
           </tr>
         <% end %>
       </tbody>
