@@ -11,14 +11,14 @@ module Admin
         @deadline = SystemSetting.find_or_initialize_by(key: 'group_creation_deadline')
         @project_deadline = SystemSetting.find_or_initialize_by(key: 'project_selection_deadline')
         @students_without_group = unassigned_students
-        @groups = Group.includes(:students).all  # tüm grupları yükle
+        @groups = Group.includes(:students).all 
         @group_quota = SystemSetting.find_or_initialize_by(key: 'group_quota')
     end
   
 
     def update
         @deadline = SystemSetting.find_or_initialize_by(key: 'group_creation_deadline')
-        if @deadline.update(value: params[:system_setting][:value])  # params[:system_setting] => formdan gelen model parametresi
+        if @deadline.update(value: params[:system_setting][:value])  
           redirect_to edit_admin_setting_path, notice: "Son tarih güncellendi."
         else
           render :edit
@@ -67,7 +67,6 @@ module Admin
       groups = []
     
       while ungrouped_students.size >= group_quota
-        # Eğer kalan öğrenci sayısı (grup_quota + 1) ise => örn: 4 öğrenci var ama quota 3, 3+1 olmasın diye 2+2 yap
         if ungrouped_students.size == group_quota + 1
           if (group_quota + 1).odd?
             half = (group_quota + 2) / 2
@@ -83,16 +82,11 @@ module Admin
         end
       end
     
-      # Geriye kalanlar 2 ise tek grup yapılabilir
-      groups << ungrouped_students.pop(2) if ungrouped_students.size == 2
-    
-      # Eğer hâlâ 1 öğrenci kalmışsa => onu var olan gruplardan en küçük olana ekle
-      if ungrouped_students.size == 1
-        remaining = ungrouped_students.pop
-        groups << [remaining]
+      if ungrouped_students.size < group_quota && ungrouped_students.size > 0
+        groups << ungrouped_students.pop(ungrouped_students.size)
       end
-    
-      # Grupları DB'ye kaydet
+
+      
       groups.each do |members|
         leader = members.first
         group = Group.create!(name: "Grup #{SecureRandom.hex(3).upcase}", leader: leader)
@@ -101,9 +95,9 @@ module Admin
         end
       end
     
-      redirect_to edit_admin_setting_path, notice: "Grup oluşturmamış öğrenciler başarıyla rastgele gruplandırıldı."
+      redirect_to edit_admin_setting_path, notice: "Grup oluşturmamış öğrenciler başarıyla gruplandırıldı."
     rescue => e
-      redirect_to edit_admin_setting_path, alert: "Bir hata oluştu: #{e.message}"
+      redirect_to edit_admin_setting_path, alert: "Bir hata oluştu."
     end
     
       

@@ -16,20 +16,15 @@ class Student::GroupsController < ApplicationController
     @group.leader = current_user
     @group.name = "Grup #{SecureRandom.hex(3).upcase}"
   
-    # Grup kotasını al
     quota = SystemSetting.find_by(key: "group_quota")&.value.to_i
     quota = 0 if quota.nil?
-  
-    # Seçilen öğrenci ID'lerini al ve boşları temizle
     selected_student_ids = (params[:group][:student_ids] || []).reject(&:blank?)
   
-    # Aynı öğrenci birden fazla seçilmiş mi?
     if selected_student_ids.uniq.length != selected_student_ids.length
       flash.now[:alert] = "Aynı öğrenci birden fazla kez eklenemez."
       return render :new
     end
-  
-    # Lider + diğer üyeler = toplam grup sayısı
+
     total_members = selected_student_ids.size + 1
   
     if quota > 0 && total_members > quota
@@ -51,8 +46,6 @@ class Student::GroupsController < ApplicationController
   end
   
   
-  
-
   def destroy
     @group = Group.find(params[:id])
     if @group.project_id.present?
@@ -63,16 +56,12 @@ class Student::GroupsController < ApplicationController
     end
   end
   
-  
 
   private
 
   def group_params
     params.require(:group).permit(:name, student_ids: [])
   end
-
-  
-  
 
   
 end

@@ -49,42 +49,46 @@ module Admin
 
       
         advisors = User.where(role: :advisor)
-      
+
         unassigned_groups.each do |group|
-          # Danışmanların grup sayıları: danışmanın projelerine atanmış grup sayısı toplamı
           advisor_group_counts = advisors.index_with do |advisor|
             Project.where(advisor_id: advisor.id).joins(:groups).count
           end
-      
+        
           min_group_count = advisor_group_counts.values.min
-          least_loaded_advisors = advisor_group_counts.select { |_, count| count == min_group_count }.keys
-      
-          selected_advisor = least_loaded_advisors.sample
-          next unless selected_advisor
-      
-          # Danışmanın projeleri
-          advisor_projects = Project.where(advisor_id: selected_advisor.id)
-      
-          # Boş kontenjanı olan projeler
-          available_projects = advisor_projects.select do |project|
-            (project.quota - project.groups.count) > 0
+        
+          # Danışmanları grup sayısına göre artan sırada listele
+          sorted_advisors = advisor_group_counts.sort_by { |_, count| count }.map(&:first)
+        
+          assigned = false
+        
+          sorted_advisors.each do |advisor|
+            advisor_projects = Project.where(advisor_id: advisor.id)
+        
+            available_projects = advisor_projects.select do |project|
+              (project.quota - project.groups.count) > 0
+            end
+        
+            next if available_projects.empty?
+        
+            project_group_counts = available_projects.index_with { |project| project.groups.count }
+            min_project_group_count = project_group_counts.values.min
+            least_used_projects = project_group_counts.select { |_, count| count == min_project_group_count }.keys
+        
+            selected_project = least_used_projects.sample
+        
+            group.update(project: selected_project)
+            assigned = true
+            break
           end
-      
-          next if available_projects.empty?
-      
-          # En az gruba sahip projeler
-          project_group_counts = available_projects.index_with { |project| project.groups.count }
-          min_project_group_count = project_group_counts.values.min
-          least_used_projects = project_group_counts.select { |_, count| count == min_project_group_count }.keys
-      
-          selected_project = least_used_projects.sample
-      
-          group.update(project: selected_project)
+        
+          unless assigned
+            Rails.logger.warn "Gruba atanacak uygun proje bulunamadı: Grup ID #{group.id}"
+          end
         end
-      
+        
         redirect_to admin_project_setting_path, notice: "Projeler rastgele atandı."
       end
-      
       
       
       
@@ -117,7 +121,6 @@ module Admin
                       .where('groups.created_at <= ?', deadline.end_of_day)
                       .select { |g| g.project.present? }
       
-        # Danışmana göre gruplandır
         groups_by_advisor = groups.group_by { |g| g.project.advisor }
       
         csv_data = CSV.generate(headers: false) do |csv|
@@ -134,18 +137,16 @@ module Admin
               csv << [group.name, student_list, group.project.title]
             end
       
-            csv << [] # Boşluk bırak danışmanlar arasında
+            csv << [] 
           end
         end
       
-        bom = "\uFEFF" # Türkçe karakter desteği için BOM
+        bom = "\uFEFF" 
         send_data bom + csv_data,
                   filename: "proje_secimi_yapan_gruplar_#{Date.today}.csv",
                   type: "text/csv; charset=utf-8"
       end
       
-    
-    
       private
   
       def system_setting_params

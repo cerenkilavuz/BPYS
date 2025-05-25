@@ -23,7 +23,7 @@ end
 def within_project_selection_deadline
   return if Current.user&.admin?
 
-  if project_id_changed? && project_id.present? # proje atanıyorsa
+  if project_id_changed? && project_id.present?
     deadline_str = SystemSetting.find_by(key: 'project_selection_deadline')
     deadline = deadline_str&.value_as_date
     if deadline.present? && Date.today > deadline

@@ -14,7 +14,6 @@ class Project < ApplicationRecord
     accepted_group_ids = Group.where(project_id: id).pluck(:id)
     pending_requests = project_requests.where(status: [:pending]).count
   
-    # Toplam başvuru sayısı = istekler (bekleyen + kabul edilen) + zaten atanmış gruplar
     pending_requests + accepted_group_ids.count
   end
 

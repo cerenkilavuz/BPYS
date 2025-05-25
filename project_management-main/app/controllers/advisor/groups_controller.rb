@@ -5,19 +5,25 @@ module Advisor
 
     def index
       @groups = Group
-        .includes(:leader, :students, :project) # eager loading
+        .includes(:leader, :students, :project) 
         .joins(:project)
         .where(projects: { advisor_id: current_user.id })
     end
 
     def destroy
       @group = Group.find(params[:id])
+      current_project = @group.project
     
-      # İlgili project_request varsa sil
       project_request = ProjectRequest.find_by(group_id: @group.id, project_id: @group.project_id)
+      project_proposal = ProjectProposal.find_by(group_id: @group.id, project_id: @group.project_id)
     
       if @group.update(project_id: nil)
-        project_request&.destroy
+        if project_request.present?
+          project_request.destroy
+        elsif project_proposal.present?
+          project_proposal.destroy
+          current_project.destroy if current_project.present?
+        end        
         redirect_to advisor_groups_path, notice: "Grup silindi."
       else
         redirect_to advisor_groups_path, alert: "Grup silinirken bir hata oluştu."

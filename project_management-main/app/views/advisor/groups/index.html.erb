@@ -1,9 +1,7 @@
 <h2 class="mb-4">Onayladığınız Projeler ve Proje Teklifleri</h2>
 
-<% # Danışmanın onayladığı projeler %>
 <% projects = current_user.projects.includes(groups: [students: []]) %>
 
-<% # Danışmanın onayladığı proje teklifleri %>
 <% accepted_proposals = ProjectProposal.where(advisor_id: current_user.id, status: "accepted").includes(group: :students) %>
 
 <% if projects.any? || accepted_proposals.any? %>
@@ -17,7 +15,6 @@
       </tr>
     </thead>
     <tbody>
-      <% # Projects tablosundaki projeler %>
       <% projects.each do |project| %>
         <% project.groups.each_with_index do |group, index| %>
           <tr>

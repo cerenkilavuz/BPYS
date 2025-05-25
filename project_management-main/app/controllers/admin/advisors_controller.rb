@@ -21,8 +21,9 @@ module Admin
       
         if @advisor.save
           AdvisorMailer.send_temporary_password(@advisor, random_password).deliver_later
-          redirect_to new_admin_advisor_path, notice: 'Danışman başarıyla eklendi ve şifresi gönderildi.'
+          redirect_to new_admin_advisor_path, notice: 'Danışman başarıyla eklendi ve geçici şifresi gönderildi.'
         else
+          @advisors = User.where(role: :advisor)
           render :new
         end
       end
@@ -32,20 +33,19 @@ module Admin
           @advisor = User.find(params[:id])
       
           @advisor.projects.find_each do |project|
-            # Projeye bağlı gruplar
-            project.groups.find_each do |group|
-              project_request = ProjectRequest.find_by(group_id: group.id, project_id: project.id)
+            project.groups.find_each do |group| 
+              ProjectRequest.where(group_id: group.id, project_id: project.id).destroy_all
+              ProjectProposal.where(group_id: group.id, advisor_id: @advisor.id).destroy_all
       
               unless group.update(project_id: nil)
                 raise ActiveRecord::Rollback, "Grubun proje bağlantısı kaldırılamadı."
               end
-      
-              project_request&.destroy
+
             end
       
             project.destroy!
           end
-      
+          
           @advisor.destroy!
         end
       

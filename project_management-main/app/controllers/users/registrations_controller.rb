@@ -2,7 +2,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
     before_action :authenticate_user!, only: [:edit, :update, :destroy]
     layout :determine_layout
   
-    # KAYIT SAYFASI
     def new
       if sign_up_student?
         unless SystemSetting.instance.students_can_register
@@ -14,7 +13,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
       super
     end
   
-    # KAYIT OLUŞTURMA
     def create
       if sign_up_student?
         unless SystemSetting.instance.students_can_register
@@ -26,7 +24,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
       super
     end
   
-    # KAYITTAN SONRAKİ YÖNLENDİRME (ör. öğrenci için login sayfası)
     def after_sign_up_path_for(resource)
       if resource.student?
         flash[:notice] = "Kayıt başarılı! Lütfen giriş yapınız."
@@ -45,7 +42,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
       end
     end
   
-    # GÜNCELLEME (şifre vs.)
     def update
       self.resource = resource_class.to_adapter.get!(send(:"current_#{resource_name}").to_key)
   
@@ -64,7 +60,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
       end
     end
   
-    # HESAP SİLME
     def destroy
       return if Current.user&.admin?
       user = resource
@@ -82,9 +77,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
       end
     end
   
-    # OTOMATİK GİRİŞİ ENGELLEME (isteğe bağlı)
     def sign_up(resource_name, resource)
-      # Otomatik login olmasın (özellikle öğrencilerde)
     end
   
     private
@@ -97,7 +90,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
     end
   
     def sign_up_student?
-      # Formdan gelen rol bilgisine göre öğrenci kaydı kontrolü
       role = params.dig(:user, :role)
       role == "student"
     end

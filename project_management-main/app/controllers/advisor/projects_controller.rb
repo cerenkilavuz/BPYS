@@ -48,6 +48,9 @@ module Advisor
     end
     
     def destroy
+      @project.groups.update_all(project_id: nil)
+      ProjectRequest.where(project_id: @project.id).destroy_all
+      ProjectProposal.where(project_id: @project.id).destroy_all
       @project.destroy
       redirect_to advisor_projects_manage_path, notice: "Proje başarıyla silindi!"
     end

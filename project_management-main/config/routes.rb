@@ -1,25 +1,22 @@
 Rails.application.routes.draw do
   
-
-  # Giriş yapmayan kullanıcılar için giriş sayfasına yönlendirme
   devise_scope :user do
     root to: "devise/sessions#new"
   end
 
   devise_for :users, controllers: {
   registrations: 'users/registrations'
-}
+  }
 
-  # Kullanıcı rolleri için yönlendirme
   namespace :admin do
     get "dashboard", to: "dashboard#index", as: :dashboard                        # Grupları Yönet
     resources :advisors , only: [:new, :create, :destroy]                         # Danışman Ekle (CRUD için)
     resource :system_setting, only: [:edit, :update] 
 
     resource :setting, only: [:edit, :update, :show] do
-      get :export_unassigned_students  # bu satırı ekle
-      post :email_unassigned_students # e-posta için
-      post :random_group_students  #  bunu ekle
+      get :export_unassigned_students  
+      post :email_unassigned_students 
+      post :random_group_students 
       patch :update_group_quota 
     end
 
@@ -46,10 +43,10 @@ Rails.application.routes.draw do
     
     resources :projects do
       collection do
-        get :requests  # Teklifleri listeleyen sayfa için route
+        get :requests  
       end
     end
-      # ProjectRequests için işlemleri burada tanımlıyoruz.
+     
       resources :project_requests do
         member do
           patch :accept

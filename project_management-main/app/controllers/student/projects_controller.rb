@@ -1,6 +1,6 @@
 module Student
   class ProjectsController < ApplicationController
-    before_action :authenticate_user! # Öğrencinin giriş yapmasını zorunlu kıl
+    before_action :authenticate_user! 
     layout "student"
 
     def index

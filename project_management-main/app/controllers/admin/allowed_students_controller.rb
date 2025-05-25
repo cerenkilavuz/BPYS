@@ -45,7 +45,7 @@ class Admin::AllowedStudentsController < ApplicationController
             student.surname = surname
       
             unless student.save
-              errors << "Satır #{line_number}: Kayıt yapılamadı - #{student.errors.full_messages.join(', ')}"
+              errors << "Satır #{line_number}: Kayıt yapılamadı."
             end
           end
       
@@ -56,7 +56,7 @@ class Admin::AllowedStudentsController < ApplicationController
           end
       
         rescue CSV::MalformedCSVError => e
-          flash[:alert] = "CSV dosyası hatalı veya bozuk: #{e.message}"
+          flash[:alert] = "CSV dosyası hatalı veya bozuk."
         end
       
         redirect_to new_admin_allowed_student_path
