@@ -31,7 +31,8 @@
           <% grouped_by_advisor = @groups_with_projects.group_by { |g| g.project&.advisor } %>
 
           <% grouped_by_advisor.each do |advisor, groups| %>
-            <% groups.each_with_index do |group, index| %>
+            <% sorted_groups = groups.sort_by { |g| g.name } %>
+            <% sorted_groups.each_with_index do |group, index| %>
               <tr>
                 <% if index == 0 %>
                   <td rowspan="<%= groups.size %>"><%= advisor&.full_name || "Bilinmiyor" %></td>

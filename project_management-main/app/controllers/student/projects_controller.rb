@@ -8,8 +8,13 @@ module Student
     end
 
     def published
-      @projects = Project.includes(:advisor, :project_requests, :groups).where(published: true)
+      excluded_project_ids = ProjectProposal.where.not(project_id: nil).pluck(:project_id)
+      @projects = Project.includes(:advisor, :project_requests, :groups)
+                         .where(published: true)
+                         .where.not(id: excluded_project_ids)
+      @group = current_user.group
     end
+    
 
     def proposals
       if current_user.group.nil?

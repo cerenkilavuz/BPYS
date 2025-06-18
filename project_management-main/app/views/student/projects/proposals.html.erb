@@ -34,7 +34,7 @@
             <tr>
               <td><%= proposal.title %></td>
               <td><%= proposal.description.truncate(100) %></td> <!-- Açıklamayı 80 karakterle sınırladık -->
-              <td><%= proposal.advisor.email %></td>
+              <td><%= proposal.advisor.full_name %></td>
               <td>
                 <% case proposal.status %>
                 <% when "pending" %>

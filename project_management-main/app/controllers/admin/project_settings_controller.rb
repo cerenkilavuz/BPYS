@@ -114,34 +114,33 @@ module Admin
       end
           
       def export_groups_to_csv
-        deadline = SystemSetting.find_by(key: 'project_selection_deadline')&.value_as_date
-        return redirect_to edit_admin_project_setting_path, alert: "Son tarih belirlenmemiş." unless deadline
-      
         groups = Group.includes(:students, project: :advisor)
-                      .where('groups.created_at <= ?', deadline.end_of_day)
-                      .select { |g| g.project.present? }
+                      .where.not(project_id: nil) # Sadece projeye atanmış gruplar
       
         groups_by_advisor = groups.group_by { |g| g.project.advisor }
       
         csv_data = CSV.generate(headers: false) do |csv|
-            csv << ["Bitirme Projesi Gruplar-Danışmanlar"]
+          csv << ["Bitirme Projesi Gruplar-Danışmanlar"]
+      
           groups_by_advisor.each do |advisor, advisor_groups|
             csv << ["Danışman: #{advisor&.full_name || 'Bilinmiyor'}"]
             csv << ["Grup Adı", "Grup Üyeleri", "Proje Başlığı"]
       
-            advisor_groups.each do |group|
+            sorted_groups = advisor_groups.sort_by { |g| g.name }
+
+            sorted_groups.each do |group|
               student_list = group.students.each_with_index.map do |s, i|
                 "#{i + 1}) #{s.full_name} - #{s.student_number}"
-              end.join("\n")     
-              
+              end.join("\n")
+      
               csv << [group.name, student_list, group.project.title]
             end
       
-            csv << [] 
+            csv << [] # Her danışmandan sonra boşluk satırı
           end
         end
       
-        bom = "\uFEFF" 
+        bom = "\uFEFF"
         send_data bom + csv_data,
                   filename: "proje_secimi_yapan_gruplar_#{Date.today}.csv",
                   type: "text/csv; charset=utf-8"
